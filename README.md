@@ -4,8 +4,10 @@ Static, mobile-first, offline-first contraction timer and labor preparation comp
 
 ## Repository structure
 
+For simple GitHub Pages deployment, all runtime files and image assets are intentionally kept in the repository root:
+
 ```text
-contrack-hangingsense-v3/
+ConTrack-HangingSense/
 ├── index.html
 ├── styles.css
 ├── app.js
@@ -13,13 +15,14 @@ contrack-hangingsense-v3/
 ├── service-worker.js
 ├── DESIGN_SYSTEM.md
 ├── README.md
-└── assets/
-    ├── logo-app.png
-    ├── logo-lockup.png
-    ├── icon-192.png
-    ├── icon-512.png
-    └── favicon.png
+├── logo-app.png
+├── logo-lockup.png
+├── icon-192.png
+├── icon-512.png
+└── favicon.png
 ```
+
+All asset references use `./filename` paths so the app works correctly when served from the GitHub Pages project path `/ConTrack-HangingSense/`.
 
 ## Run locally
 

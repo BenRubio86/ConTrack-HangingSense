@@ -1,15 +1,15 @@
-const CACHE = "contrack-hangingsense-v3-1";
+const CACHE = "contrack-hangingsense-v3-2";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.webmanifest",
-  "./assets/logo-app.png",
-  "./assets/logo-lockup.png",
-  "./assets/icon-192.png",
-  "./assets/icon-512.png",
-  "./assets/favicon.png"
+  "./logo-app.png",
+  "./logo-lockup.png",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./favicon.png"
 ];
 
 self.addEventListener("install", event => {
@@ -19,20 +19,34 @@ self.addEventListener("install", event => {
 
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))
+    )
   );
   self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request).then(response => {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        return response;
-      }).catch(() => caches.match("./index.html"))
-    )
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(event.request)
+        .then(response => {
+          if (!response || response.status !== 200) return response;
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => {
+          if (event.request.mode === "navigate") return caches.match("./index.html");
+          return Response.error();
+        });
+    })
   );
 });
