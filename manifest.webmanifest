@@ -1,0 +1,21 @@
+{
+  "name": "ConTrack @ HangingSense",
+  "short_name": "ConTrack",
+  "description": "Calm, local-first contraction timing and labor preparation companion.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F7F1E6",
+  "theme_color": "#F7F1E6",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

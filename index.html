@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F7F1E6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>ConTrack @ HangingSense — V3.0</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brandrow">
+      <div class="brand">
+        <img src="assets/logo-app.png" alt="HangingSense">
+        <div class="brandcopy">
+          <div class="product">ConTrack</div>
+          <div class="byline">by HangingSense · V3.0</div>
+        </div>
+      </div>
+      <div class="status-chip" id="localChip">Local · Offline</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page active" id="page-track">
+      <div class="hero">
+        <div class="eyebrow" data-i18n="trackNow">Track now</div>
+        <div class="timer" id="timer">00:00</div>
+        <p class="helper" id="trackHelper" data-i18n="tapStart">Tap when a contraction begins. Timing stays on this device.</p>
+        <button class="primary-action" id="toggleTimer" aria-label="Start contraction">
+          <span class="dot"></span><span id="toggleText" data-i18n="start">Start contraction</span>
+        </button>
+      </div>
+
+      <div class="pattern-strip">
+        <div class="card-head">
+          <div>
+            <div class="card-title" data-i18n="rhythm">Rhythm</div>
+            <div class="card-note" data-i18n="recentTiming">Recent timing — no prediction</div>
+          </div>
+          <div class="card-note" id="rhythmCount">0</div>
+        </div>
+        <canvas id="rhythmCanvas" aria-label="Recent contraction rhythm"></canvas>
+      </div>
+
+      <div class="last-card">
+        <div class="card-head">
+          <div class="card-title" data-i18n="lastContraction">Last contraction</div>
+          <div class="card-note" id="lastTime">—</div>
+        </div>
+        <div class="last-grid">
+          <div class="metric">
+            <div class="metric-label" data-i18n="duration">Duration</div>
+            <div class="metric-value" id="lastDuration">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label" data-i18n="startToStart">Start → start</div>
+            <div class="metric-value" id="lastInterval">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cultural-divider" aria-hidden="true"></div>
+      <p class="safety" data-i18n="safety">ConTrack records timing and self-reported intensity. It does not diagnose labor stage or replace advice from your maternity team.</p>
+    </section>
+
+    <section class="page" id="page-history">
+      <div class="section-head">
+        <div class="section-title" data-i18n="history">History</div>
+        <div class="section-sub" data-i18n="historySub">Review timing, add intensity later, or correct notes without changing the original timestamp.</div>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </section>
+
+    <section class="page" id="page-summary">
+      <div class="section-head">
+        <div class="section-title" data-i18n="summary">Summary</div>
+        <div class="section-sub" data-i18n="summarySub">A factual snapshot of the current session.</div>
+      </div>
+      <div class="panel chart-panel">
+        <div class="card-head">
+          <div>
+            <div class="card-title" data-i18n="pattern">Contraction pattern</div>
+            <div class="card-note" data-i18n="chartNote">Duration bars · intensity dots</div>
+          </div>
+          <div class="card-note" id="sessionRange">—</div>
+        </div>
+        <canvas id="summaryCanvas" aria-label="Contraction timing summary chart"></canvas>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><small data-i18n="contractions">Contractions</small><strong id="kpiCount">0</strong></div>
+        <div class="kpi"><small data-i18n="avgDuration">Avg duration</small><strong id="kpiDuration">—</strong></div>
+        <div class="kpi"><small data-i18n="avgInterval">Avg start interval</small><strong id="kpiInterval">—</strong></div>
+        <div class="kpi"><small data-i18n="avgRest">Avg rest</small><strong id="kpiRest">—</strong></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <div class="card-title" data-i18n="intensitySummary">Intensity</div>
+        <div class="section-sub" style="margin-top:5px" id="painSummary">No intensity ratings yet.</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-more">
+      <div class="section-head">
+        <div class="section-title" data-i18n="more">More</div>
+        <div class="section-sub" data-i18n="moreSub">Language, visual style, session and local data.</div>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-label" data-i18n="language">Language</div>
+        <select class="select" id="languageSelect" aria-label="Language">
+          <option value="en">🇬🇧 English</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="es">🇨🇴 Español</option>
+          <option value="fa">🇮🇷 فارسی</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="hi">🇮🇳 हिन्दी</option>
+          <option value="ar">🇸🇦 العربية</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="ja">🇯🇵 日本語</option>
+        </select>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-label" data-i18n="designStudio">Design studio</div>
+        <div class="theme-grid" id="themeGrid"></div>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-label" data-i18n="sessionData">Session & data</div>
+        <div class="panel">
+          <div class="setting-row">
+            <div class="setting-main"><b data-i18n="exportCsv">Export CSV</b><span data-i18n="exportCsvSub">Timing, rest, intensity and notes</span></div>
+            <button class="secondary-btn" id="exportCsvBtn" data-i18n="export">Export</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-main"><b data-i18n="exportJson">Export JSON</b><span data-i18n="exportJsonSub">Full local session backup</span></div>
+            <button class="secondary-btn" id="exportJsonBtn" data-i18n="export">Export</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-main"><b data-i18n="newSession">New session</b><span data-i18n="newSessionSub">Clears the current contraction list on this device</span></div>
+            <button class="secondary-btn danger-btn" id="newSessionBtn" data-i18n="reset">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel brand-card">
+        <img src="assets/logo-lockup.png" alt="HangingSense brand mark">
+        <h3>ConTrack @ HangingSense</h3>
+        <p data-i18n="brandLine">Calm labor preparation · factual timing · local-first</p>
+      </div>
+
+      <p class="safety" data-i18n="privacy">Your session is stored in this browser only unless you export it. No account or cloud connection is required.</p>
+    </section>
+  </main>
+</div>
+
+<div class="active-bar" id="activeBar">
+  <button id="activeStop"><span data-i18n="contractionRunning">Contraction running</span> · <span id="activeBarTime">00:00</span> · <span data-i18n="tapToEnd">tap to end</span></button>
+</div>
+
+<nav class="bottomnav" aria-label="Primary navigation">
+  <div class="navshell">
+    <button class="navbtn active" data-page="track" aria-label="Track">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg><span data-i18n="track">Track</span>
+    </button>
+    <button class="navbtn" data-page="history" aria-label="History">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M6 4v6M18 4v6M5 10h14v10H5z"/><path d="M8 14h3M13 14h3M8 17h3"/></svg><span data-i18n="history">History</span>
+    </button>
+    <button class="navbtn" data-page="summary" aria-label="Summary">
+      <svg viewBox="0 0 24 24"><path d="M5 19V9M12 19V5M19 19v-7"/></svg><span data-i18n="summary">Summary</span>
+    </button>
+    <button class="navbtn" data-page="more" aria-label="More">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg><span data-i18n="more">More</span>
+    </button>
+  </div>
+</nav>
+
+<div class="sheet-wrap" id="painSheet" role="dialog" aria-modal="true" aria-labelledby="painTitle">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="painTitle" data-i18n="painTitle">How intense did it feel?</h2>
+    <p data-i18n="painSub">Optional self-rating from 0–10. You can add or change it later in History.</p>
+    <div class="pain-grid" id="painGrid"></div>
+    <textarea class="note-input" id="noteInput" data-i18n-placeholder="notePlaceholder" placeholder="Optional note"></textarea>
+    <div class="sheet-actions">
+      <button class="sheet-skip" id="painSkip" data-i18n="notRated">Not rated</button>
+      <button class="sheet-save" id="painSave" data-i18n="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js" defer></script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
+}
+</script>
+
+</body>
+</html>
