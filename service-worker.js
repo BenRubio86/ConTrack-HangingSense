@@ -1,4 +1,4 @@
-const CACHE = "contrack-hangingsense-v3-2";
+const CACHE = "contrack-hangingsense-v3-3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,7 +9,10 @@ const ASSETS = [
   "./logo-lockup.png",
   "./icon-192.png",
   "./icon-512.png",
-  "./favicon.png"
+  "./favicon.png",
+  "./benyima-logo.png",
+  "./doula-silvana-wechat.jpg",
+  "./doula-silvana-telegram.jpg"
 ];
 
 self.addEventListener("install", event => {

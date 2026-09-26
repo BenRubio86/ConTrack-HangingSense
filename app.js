@@ -1,5 +1,6 @@
 const STORAGE = 'contrack_hangingsense_v3';
 const RTL_LANGS = new Set(['ar','fa']);
+const APP_NAME = 'ConTrack @ HangingSense';
 
 const themes = {
   hanging: {
@@ -192,6 +193,7 @@ let pendingPainId = null;
 let selectedPain = null;
 let editId = null;
 let tickHandle = null;
+let currentPage = 'track';
 
 function loadState() {
   try {
@@ -252,6 +254,7 @@ function renderThemes() {
   });
 }
 function switchPage(page) {
+  currentPage = page;
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+page));
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
   if(page==='summary'||page==='track') setTimeout(drawCharts,40);
@@ -398,6 +401,259 @@ function exportCsv() {
 }
 function exportJson() { exportBlob(JSON.stringify({app:'ConTrack @ HangingSense',version:'3.0',...state},null,2),'ConTrack_HangingSense_session.json','application/json'); }
 
+function downloadCanvas(canvas,name) {
+  canvas.toBlob(blob=>{ if(blob) exportBlob(blob,name,'image/png'); }, 'image/png');
+}
+function fileStamp() {
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+function localIsoDay(ts) {
+  const d=new Date(ts), pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function createExportSurface(width=1400,height=1800) {
+  const canvas=document.createElement('canvas');
+  canvas.width=width; canvas.height=height;
+  const ctx=canvas.getContext('2d');
+  const bg=cssVar('--bg'), sand=cssVar('--sand');
+  const grad=ctx.createLinearGradient(0,0,width,height);
+  grad.addColorStop(0,bg); grad.addColorStop(1,'#fffdf8');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,width,height);
+  ctx.fillStyle='rgba(217,181,160,0.16)';
+  ctx.beginPath(); ctx.arc(width*0.16, height*0.1, 180, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(width*0.88, height*0.06, 130, 0, Math.PI*2); ctx.fill();
+  return {canvas,ctx,width,height};
+}
+function roundRectPath(ctx,x,y,w,h,r){
+  const rr=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+function fillRoundRect(ctx,x,y,w,h,r,fill,stroke=null){
+  roundRectPath(ctx,x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
+}
+function drawExportHeader(ctx,w,title,subtitle,rightText=''){ 
+  ctx.fillStyle=cssVar('--text');
+  ctx.font='700 52px Manrope, sans-serif';
+  ctx.fillText('ConTrack', 80, 104);
+  ctx.fillStyle=cssVar('--muted');
+  ctx.font='600 24px Manrope, sans-serif';
+  ctx.fillText(subtitle, 82, 142);
+  if(rightText){
+    fillRoundRect(ctx,w-320,56,240,74,36,'rgba(255,252,247,0.9)',cssVar('--dune'));
+    ctx.fillStyle=cssVar('--earth');
+    ctx.font='600 28px Manrope, sans-serif';
+    ctx.fillText(rightText, w-275, 103);
+  }
+  ctx.fillStyle=cssVar('--muted');
+  ctx.font='700 20px Manrope, sans-serif';
+  ctx.fillText(title.toUpperCase(), 80, 208);
+}
+function drawInfoCard(ctx,x,y,w,h,title,bodyLines){
+  fillRoundRect(ctx,x,y,w,h,34,'rgba(255,252,247,0.96)',cssVar('--dune'));
+  ctx.fillStyle=cssVar('--text');
+  ctx.font='700 28px Manrope, sans-serif';
+  ctx.fillText(title, x+28, y+44);
+  ctx.fillStyle=cssVar('--muted');
+  ctx.font='500 22px Manrope, sans-serif';
+  bodyLines.forEach((line,i)=>ctx.fillText(line, x+28, y+82+i*30));
+}
+function drawMetricCard(ctx,x,y,w,h,label,value){
+  fillRoundRect(ctx,x,y,w,h,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
+  ctx.fillStyle=cssVar('--muted');
+  ctx.font='500 24px Manrope, sans-serif';
+  ctx.fillText(label, x+28, y+50);
+  ctx.fillStyle=cssVar('--text');
+  ctx.font='700 62px Manrope, sans-serif';
+  ctx.fillText(value, x+28, y+128);
+}
+function drawMiniBars(ctx,x,y,w,h,data,pains=[]){
+  fillRoundRect(ctx,x,y,w,h,36,'rgba(255,252,247,0.96)',cssVar('--dune'));
+  ctx.fillStyle=cssVar('--text');
+  ctx.font='700 30px Manrope, sans-serif';
+  ctx.fillText('Contraction pattern', x+28, y+44);
+  ctx.fillStyle=cssVar('--muted');
+  ctx.font='500 20px Manrope, sans-serif';
+  ctx.fillText('Duration bars · intensity dots', x+28, y+74);
+  const inner={x:x+28,y:y+96,w:w-56,h:h-132};
+  ctx.strokeStyle=cssVar('--dune'); ctx.lineWidth=2;
+  for(let i=0;i<4;i++){
+    const gy=inner.y + i*(inner.h/3);
+    ctx.beginPath(); ctx.moveTo(inner.x,gy); ctx.lineTo(inner.x+inner.w,gy); ctx.stroke();
+  }
+  if(!data.length){
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 24px Manrope, sans-serif';
+    ctx.fillText('No contractions recorded yet', inner.x, inner.y+inner.h/2); return;
+  }
+  const max=Math.max(90,...data.map(d=>d.duration||0));
+  const gap=16, bw=Math.max(34,(inner.w-gap*(data.length-1))/data.length);
+  data.forEach((d,i)=>{
+    const bh=(d.duration/max)*(inner.h-34); const bx=inner.x+i*(bw+gap), by=inner.y+inner.h-bh;
+    fillRoundRect(ctx,bx,by,bw,bh,14,cssVar('--accent'));
+    if(d.pain!=null){
+      const py=inner.y + (10-d.pain)/10*(inner.h-24);
+      ctx.fillStyle=cssVar('--earth'); ctx.beginPath(); ctx.arc(bx+bw/2, py, 7, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(255,252,247,0.95)'; ctx.lineWidth=3; ctx.stroke();
+    }
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 18px Manrope, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(String(i+1), bx+bw/2, inner.y+inner.h+28);
+  });
+  ctx.textAlign='left';
+}
+function drawHistoryCards(ctx,x,y,w,items){
+  drawInfoCard(ctx,x,y,w,120,'Recent history',['Latest contractions · time, duration, interval and intensity']);
+  let yy=y+140;
+  if(!items.length){ drawInfoCard(ctx,x,yy,w,150,'No history',['No contractions recorded yet.']); return; }
+  items.forEach((item,idx)=>{
+    fillRoundRect(ctx,x,yy,w,126,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
+    ctx.fillStyle=cssVar('--text'); ctx.font='700 26px Manrope, sans-serif';
+    ctx.fillText(`#${items.length-idx}  ${timeOf(item.start)}`, x+24, yy+40);
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif';
+    ctx.fillText(`Duration ${formatShort(item.duration)}   ·   Start interval ${formatShort(item.interval)}   ·   Rest ${formatShort(item.rest)}`, x+24, yy+74);
+    ctx.fillText(`Intensity ${item.pain==null?'Not rated':item.pain+'/10'}${item.note?`   ·   ${item.note}`:''}`, x+24, yy+102);
+    yy += 144;
+  });
+}
+function drawMoreExport(ctx,w){
+  drawInfoCard(ctx,80,230,w-160,140,'More',['Design, creator and support contact overview']);
+  drawInfoCard(ctx,80,390,w-160,180,'App creator',['BenYima AI','Engineering what comes next']);
+}
+function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src;
+  });
+}
+async function exportCurrentScreenPng() {
+  const page=document.querySelector('.page.active')?.id?.replace('page-','') || currentPage || 'track';
+  const {canvas,ctx,width,height}=createExportSurface(1400, page==='history'?1900:1800);
+  drawExportHeader(ctx,width, page, 'by HangingSense · V3.0', 'Local · Offline');
+  if(page==='track'){
+    ctx.fillStyle=cssVar('--text'); ctx.font='700 120px Manrope, sans-serif';
+    const timeText=document.getElementById('timer').textContent || '00:00';
+    ctx.fillText(timeText,80,360);
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 28px Manrope, sans-serif';
+    ctx.fillText(t('tapStart'),80,408);
+    drawMiniBars(ctx,80,460,width-160,430,state.contractions.slice(-8));
+    drawMetricCard(ctx,80,928,(width-184)/2,170,t('lastContraction'), document.getElementById('lastTime').textContent || '—');
+    drawMetricCard(ctx,104+(width-184)/2,928,(width-184)/2,170,t('duration'), document.getElementById('lastDuration').textContent || '—');
+    drawInfoCard(ctx,80,1128,width-160,180,'Safety note',[t('safety')]);
+  } else if(page==='summary'){
+    drawMiniBars(ctx,80,230,width-160,520,state.contractions.slice(-8));
+    const gridY=782, cardW=(width-196)/2;
+    drawMetricCard(ctx,80,gridY,cardW,170,t('contractions'), String(state.contractions.length));
+    drawMetricCard(ctx,104+cardW,gridY,cardW,170,t('avgDuration'), document.getElementById('kpiDuration').textContent || '—');
+    drawMetricCard(ctx,80,gridY+190,cardW,170,t('avgInterval'), document.getElementById('kpiInterval').textContent || '—');
+    drawMetricCard(ctx,104+cardW,gridY+190,cardW,170,t('avgRest'), document.getElementById('kpiRest').textContent || '—');
+    drawInfoCard(ctx,80,gridY+392,width-160,140,'Intensity',[(document.getElementById('painSummary').textContent || 'No intensity ratings yet.')]);
+  } else if(page==='history'){
+    drawHistoryCards(ctx,80,230,width-160,[...state.contractions].slice(-6).reverse());
+  } else {
+    drawMoreExport(ctx,width);
+    try{
+      const [brand,creator,wechat,telegram] = await Promise.all([
+        loadImage('./logo-lockup.png'), loadImage('./benyima-logo.png'), loadImage('./doula-silvana-wechat.jpg'), loadImage('./doula-silvana-telegram.jpg')
+      ]);
+      ctx.drawImage(brand, 160, 460, width-320, 170);
+      fillRoundRect(ctx,80,680,width-160,170,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
+      ctx.drawImage(creator, 110, 710, 110, 110);
+      ctx.fillStyle=cssVar('--text'); ctx.font='700 30px Manrope, sans-serif'; ctx.fillText('BenYima AI', 250, 760);
+      ctx.fillStyle=cssVar('--muted'); ctx.font='500 22px Manrope, sans-serif'; ctx.fillText('App creator · Engineering what comes next', 250, 798);
+      drawInfoCard(ctx,80,884,width-160,120,'Doula Silvana',['Support contact · save or scan the QR images']);
+      fillRoundRect(ctx,80,1028,(width-188)/2,470,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
+      fillRoundRect(ctx,108+(width-188)/2,1028,(width-188)/2,470,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
+      ctx.drawImage(wechat, 116, 1068, (width-252)/2, (width-252)/2);
+      ctx.drawImage(telegram, 144+(width-188)/2, 1068, (width-252)/2, (width-252)/2);
+      ctx.fillStyle=cssVar('--text'); ctx.font='700 28px Manrope, sans-serif'; ctx.fillText('WeChat', 116, 1460); ctx.fillText('Telegram', 144+(width-188)/2, 1460);
+      ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif'; ctx.fillText('Long-press to save or scan', 116, 1490); ctx.fillText('Long-press to save or scan', 144+(width-188)/2, 1490);
+    } catch(e){
+      drawInfoCard(ctx,80,460,width-160,220,'Assets unavailable',['Open the More page online to refresh assets, then try again.']);
+    }
+  }
+  downloadCanvas(canvas, `ConTrack_${page}_${fileStamp()}.png`);
+  toast('PNG export created');
+}
+function groupByDay(){
+  const days = new Map();
+  state.contractions.forEach(c=>{
+    const key=localIsoDay(c.start);
+    if(!days.has(key)) days.set(key, {day:key,count:0,durations:[],intervals:[],rests:[],pains:[]});
+    const d=days.get(key);
+    d.count++; d.durations.push(c.duration); if(c.interval!=null) d.intervals.push(c.interval); if(c.rest!=null) d.rests.push(c.rest); if(c.pain!=null) d.pains.push(c.pain);
+  });
+  return [...days.values()].map(d=>({
+    day:d.day,
+    count:d.count,
+    avgDuration:avg(d.durations),
+    avgInterval:avg(d.intervals),
+    avgRest:avg(d.rests),
+    avgPain:avg(d.pains)
+  }));
+}
+function drawDailyOverviewChart(ctx,x,y,w,h,days){
+  fillRoundRect(ctx,x,y,w,h,36,'rgba(255,252,247,0.96)',cssVar('--dune'));
+  ctx.fillStyle=cssVar('--text'); ctx.font='700 30px Manrope, sans-serif'; ctx.fillText('Daily overview', x+28, y+44);
+  ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif'; ctx.fillText('Contractions per day · gold line = avg duration', x+28, y+74);
+  const inner={x:x+28,y:y+100,w:w-56,h:h-160};
+  ctx.strokeStyle=cssVar('--dune'); ctx.lineWidth=2;
+  for(let i=0;i<4;i++){
+    const gy=inner.y + i*(inner.h/3);
+    ctx.beginPath(); ctx.moveTo(inner.x,gy); ctx.lineTo(inner.x+inner.w,gy); ctx.stroke();
+  }
+  if(!days.length){
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 24px Manrope, sans-serif'; ctx.fillText('No contractions recorded yet', inner.x, inner.y+inner.h/2); return;
+  }
+  const maxCount=Math.max(1,...days.map(d=>d.count));
+  const maxDuration=Math.max(60,...days.map(d=>d.avgDuration||0));
+  const gap=18, bw=Math.max(70,(inner.w-gap*(days.length-1))/days.length);
+  let prev=null;
+  days.forEach((d,i)=>{
+    const bx=inner.x+i*(bw+gap), bh=(d.count/maxCount)*(inner.h-40), by=inner.y+inner.h-bh;
+    fillRoundRect(ctx,bx,by,bw,bh,16,cssVar('--accent'));
+    const py=inner.y+inner.h-((d.avgDuration||0)/maxDuration)*(inner.h-40);
+    ctx.fillStyle='#D1A65B'; ctx.beginPath(); ctx.arc(bx+bw/2, py, 7, 0, Math.PI*2); ctx.fill();
+    if(prev){ ctx.strokeStyle='#D1A65B'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(bx+bw/2, py); ctx.stroke(); }
+    prev={x:bx+bw/2,y:py};
+    ctx.fillStyle=cssVar('--muted'); ctx.font='500 18px Manrope, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(d.day.slice(5), bx+bw/2, inner.y+inner.h+28);
+  });
+  ctx.textAlign='left';
+}
+function exportDailyOverviewPng(){
+  const days=groupByDay();
+  const extra=Math.max(0, days.length-4)*92;
+  const {canvas,ctx,width,height}=createExportSurface(1500, 1600 + extra);
+  drawExportHeader(ctx,width,'daily overview','by HangingSense · V3.0','PNG');
+  drawDailyOverviewChart(ctx,80,230,width-160,560,days);
+  const total=state.contractions.length;
+  const avgDurationText=formatShort(avg(state.contractions.map(x=>x.duration)));
+  drawMetricCard(ctx,80,822,(width-208)/3,170,'Total contractions', String(total));
+  drawMetricCard(ctx,104+(width-208)/3,822,(width-208)/3,170,'Avg duration', avgDurationText);
+  drawMetricCard(ctx,128+2*(width-208)/3,822,(width-208)/3,170,'Tracked days', String(days.length));
+  let y=1032;
+  if(!days.length){
+    drawInfoCard(ctx,80,y,width-160,140,'No data',['Track contractions first, then export again.']);
+  } else {
+    days.forEach(d=>{
+      fillRoundRect(ctx,80,y,width-160,120,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
+      ctx.fillStyle=cssVar('--text'); ctx.font='700 28px Manrope, sans-serif'; ctx.fillText(d.day, 108, y+44);
+      ctx.fillStyle=cssVar('--muted'); ctx.font='500 22px Manrope, sans-serif';
+      ctx.fillText(`Count ${d.count}   ·   Avg duration ${formatShort(d.avgDuration)}   ·   Avg interval ${formatShort(d.avgInterval)}   ·   Avg rest ${formatShort(d.avgRest)}${d.avgPain!=null?`   ·   Avg intensity ${d.avgPain.toFixed(1)}/10`:''}`,108,y+84);
+      y+=136;
+    });
+  }
+  downloadCanvas(canvas, `ConTrack_daily_overview_${fileStamp()}.png`);
+  toast('Daily overview PNG created');
+}
+
 loadState();
 renderThemes();
 renderPainGrid();
@@ -415,6 +671,8 @@ document.getElementById('painSheet').onclick=e=>{if(e.target.id==='painSheet')cl
 document.getElementById('languageSelect').onchange=e=>{state.language=e.target.value;saveState();applyLanguage();};
 document.getElementById('exportCsvBtn').onclick=exportCsv;
 document.getElementById('exportJsonBtn').onclick=exportJson;
+document.getElementById('exportScreenBtn').onclick=exportCurrentScreenPng;
+document.getElementById('exportDailyBtn').onclick=exportDailyOverviewPng;
 document.getElementById('newSessionBtn').onclick=()=>{
   if(confirm('Start a new session and clear the current contraction list?')) {
     state.contractions=[];state.activeStart=null;state.sessionStartedAt=Date.now();saveState();stopTick();updateTimerUI();renderAll();toast('New session started');
