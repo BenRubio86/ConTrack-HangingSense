@@ -1,62 +1,46 @@
-# ConTrack @ HangingSense — V3.0
+# ConTrack V3.0 — by Hanging Sense
 
-Static, mobile-first, offline-first contraction timer and labor preparation companion.
+A mobile-first, offline-first contraction timer prototype built as a vanilla HTML/CSS/JS PWA.
 
-## Repository structure
+## Included
 
-For simple GitHub Pages deployment, all runtime files and image assets are intentionally kept in the repository root:
-
-```text
-ConTrack-HangingSense/
-├── index.html
-├── styles.css
-├── app.js
-├── manifest.webmanifest
-├── service-worker.js
-├── DESIGN_SYSTEM.md
-├── README.md
-├── logo-app.png
-├── logo-lockup.png
-├── icon-192.png
-├── icon-512.png
-└── favicon.png
-```
-
-All asset references use `./filename` paths so the app works correctly when served from the GitHub Pages project path `/ConTrack-HangingSense/`.
+- Calm Track screen with one primary timer action
+- Persistent timer state across refresh/backgrounding via timestamps
+- Optional post-contraction intensity entry (1–10)
+- Editable History
+- Human-readable Summary with recent pattern visualization
+- Share summary
+- PNG chart export
+- CSV export and JSON backup/restore
+- 5 visual themes: Hanging Sense, Calm, Serenity, Minimal, Night
+- 11 languages with RTL support for Arabic/Farsi
+- Local-only storage by default
+- Installable PWA + service worker
+- Hanging Sense brand assets supplied by the project owner
 
 ## Run locally
 
-Because the service worker requires HTTP(S), use any simple local server.
+Because service workers require an HTTP origin, use any static server, for example:
 
-### Python
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open:
-```text
-http://localhost:8080
-```
+Then open `http://localhost:8080`.
 
-## Functional scope
-- Start / end contraction timer
-- Local browser persistence
-- History review
-- Optional 0–10 pain intensity after each contraction
-- Pain rating can be added or edited later
-- Optional notes
-- Summary KPIs and chart
-- CSV export
-- JSON backup export
-- 5 visual themes
-- 11 language options
-- RTL support for Arabic and Farsi
-- Offline PWA shell
+## Data model
 
-## Important product boundary
-ConTrack records factual timing and self-reported intensity. It does not diagnose labor, predict labor stage, or replace professional maternity advice.
+Each contraction stores:
 
-## Branding
-The default theme is **HangingSense / Calm** using the approved warm cream / earth / clay identity.
+- `id`
+- `start`
+- `end`
+- `durationSec`
+- `intensity`
+- `notes`
 
-See `DESIGN_SYSTEM.md` for design tokens and visual rules.
+All records are stored in `localStorage` under `contrack_v3_state`.
+
+## Safety scope
+
+ConTrack records and summarizes user-entered timing information. It does not diagnose labour stage, predict birth timing, infer cervical dilation, or replace instructions from the maternity team.

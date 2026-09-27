@@ -1,682 +1,163 @@
-const STORAGE = 'contrack_hangingsense_v3';
-const RTL_LANGS = new Set(['ar','fa']);
-const APP_NAME = 'ConTrack @ HangingSense';
-
-const themes = {
-  hanging: {
-    name:'HangingSense / Calm', desc:'Warm cream · clay · earth',
-    vars:{bg:'#F7F1E6',surface:'#FFFCF7',surface2:'#F2E9DC',earth:'#574A43',text:'#302A27',muted:'#7D716B',accent:'#B86F4F',accentStrong:'#A95F43',sand:'#D9B5A0',dune:'#E9DDCE'}
-  },
-  bloom: {
-    name:'Bloom', desc:'Soft blush · warm berry',
-    vars:{bg:'#FAF2EF',surface:'#FFFDFC',surface2:'#F4E2DE',earth:'#624B4D',text:'#352A2B',muted:'#816E71',accent:'#C4776A',accentStrong:'#A95C54',sand:'#E5B8AE',dune:'#ECD9D4'}
-  },
-  serenity: {
-    name:'Serenity', desc:'Sage · mineral · clay',
-    vars:{bg:'#F3F3EC',surface:'#FCFCF7',surface2:'#E6EBE2',earth:'#4E5A51',text:'#29302B',muted:'#6F7A72',accent:'#A36C56',accentStrong:'#895743',sand:'#C9D0C2',dune:'#DDE1D7'}
-  },
-  minimal: {
-    name:'Minimal', desc:'Quiet neutral · high clarity',
-    vars:{bg:'#F5F3EF',surface:'#FFFFFF',surface2:'#ECE9E4',earth:'#44413F',text:'#242321',muted:'#706D69',accent:'#8A6250',accentStrong:'#704D3F',sand:'#D6CEC6',dune:'#E4E0DA'}
-  },
-  night: {
-    name:'Night', desc:'Deep cacao · low-glare clay',
-    vars:{bg:'#201C1A',surface:'#2B2522',surface2:'#342B27',earth:'#E9DCCF',text:'#F5EEE7',muted:'#BBAEA4',accent:'#D48769',accentStrong:'#C46E50',sand:'#7A6155',dune:'#433934'}
-  }
-};
-
-const I18N = {
-en: {
- trackNow:'Track now',tapStart:'Tap when a contraction begins. Timing stays on this device.',start:'Start contraction',end:'End contraction',
- rhythm:'Rhythm',recentTiming:'Recent timing — no prediction',lastContraction:'Last contraction',duration:'Duration',startToStart:'Start → start',
- safety:'ConTrack records timing and self-reported intensity. It does not diagnose labor stage or replace advice from your maternity team.',
- track:'Track',history:'History',summary:'Summary',more:'More',historySub:'Review timing, add intensity later, or correct notes without changing the original timestamp.',
- summarySub:'A factual snapshot of the current session.',pattern:'Contraction pattern',chartNote:'Duration bars · intensity dots',contractions:'Contractions',
- avgDuration:'Avg duration',avgInterval:'Avg start interval',avgRest:'Avg rest',intensitySummary:'Intensity',moreSub:'Language, visual style, session and local data.',
- language:'Language',designStudio:'Design studio',sessionData:'Session & data',exportCsv:'Export CSV',exportCsvSub:'Timing, rest, intensity and notes',
- exportJson:'Export JSON',exportJsonSub:'Full local session backup',newSession:'New session',newSessionSub:'Clears the current contraction list on this device',
- export:'Export',reset:'Reset',brandLine:'Calm labor preparation · factual timing · local-first',
- privacy:'Your session is stored in this browser only unless you export it. No account or cloud connection is required.',
- painTitle:'How intense did it feel?',painSub:'Optional self-rating from 0–10. You can add or change it later in History.',
- notePlaceholder:'Optional note',notRated:'Not rated',save:'Save',contractionRunning:'Contraction running',tapToEnd:'tap to end'
-},
-de: {
- trackNow:'Jetzt erfassen',tapStart:'Tippen, wenn eine Wehe beginnt. Die Daten bleiben auf diesem Gerät.',start:'Wehe starten',end:'Wehe beenden',
- rhythm:'Rhythmus',recentTiming:'Letzte Zeiten — keine Prognose',lastContraction:'Letzte Wehe',duration:'Dauer',startToStart:'Start → Start',
- safety:'ConTrack zeichnet Zeiten und subjektive Intensität auf. Es diagnostiziert keine Geburtsphase und ersetzt nicht die Beratung durch das Geburtsteam.',
- track:'Track',history:'Verlauf',summary:'Übersicht',more:'Mehr',historySub:'Zeiten prüfen, Intensität später ergänzen oder Notizen korrigieren, ohne den Originalzeitpunkt zu verändern.',
- summarySub:'Sachliche Momentaufnahme der aktuellen Sitzung.',pattern:'Wehenmuster',chartNote:'Dauerbalken · Intensitätspunkte',contractions:'Wehen',
- avgDuration:'Ø Dauer',avgInterval:'Ø Startintervall',avgRest:'Ø Pause',intensitySummary:'Intensität',moreSub:'Sprache, Design, Sitzung und lokale Daten.',
- language:'Sprache',designStudio:'Design Studio',sessionData:'Sitzung & Daten',exportCsv:'CSV exportieren',exportCsvSub:'Zeiten, Pausen, Intensität und Notizen',
- exportJson:'JSON exportieren',exportJsonSub:'Vollständige lokale Sicherung',newSession:'Neue Sitzung',newSessionSub:'Löscht die aktuelle Wehenliste auf diesem Gerät',
- export:'Export',reset:'Zurücksetzen',brandLine:'Ruhige Geburtsvorbereitung · sachliche Zeiterfassung · lokal',
- privacy:'Die Sitzung wird nur in diesem Browser gespeichert, sofern du sie nicht exportierst. Kein Konto und keine Cloud sind erforderlich.',
- painTitle:'Wie intensiv fühlte es sich an?',painSub:'Optionale Selbsteinschätzung von 0–10. Später im Verlauf änderbar.',
- notePlaceholder:'Optionale Notiz',notRated:'Nicht bewertet',save:'Speichern',contractionRunning:'Wehe läuft',tapToEnd:'tippen zum Beenden'
-},
-fr: {
- trackNow:'Suivre maintenant',tapStart:'Touchez lorsque la contraction commence. Les données restent sur cet appareil.',start:'Démarrer la contraction',end:'Terminer la contraction',
- rhythm:'Rythme',recentTiming:'Temps récents — sans prédiction',lastContraction:'Dernière contraction',duration:'Durée',startToStart:'Début → début',
- safety:'ConTrack enregistre le temps et l’intensité déclarée. Il ne diagnostique pas le stade du travail et ne remplace pas votre équipe de maternité.',
- track:'Suivi',history:'Historique',summary:'Résumé',more:'Plus',historySub:'Vérifiez les temps, ajoutez l’intensité plus tard ou corrigez les notes.',
- summarySub:'Vue factuelle de la session en cours.',pattern:'Schéma des contractions',chartNote:'Barres de durée · points d’intensité',contractions:'Contractions',
- avgDuration:'Durée moy.',avgInterval:'Intervalle moy.',avgRest:'Repos moy.',intensitySummary:'Intensité',moreSub:'Langue, style visuel, session et données locales.',
- language:'Langue',designStudio:'Studio de design',sessionData:'Session et données',exportCsv:'Exporter CSV',exportCsvSub:'Temps, repos, intensité et notes',
- exportJson:'Exporter JSON',exportJsonSub:'Sauvegarde locale complète',newSession:'Nouvelle session',newSessionSub:'Efface la liste actuelle sur cet appareil',
- export:'Exporter',reset:'Réinitialiser',brandLine:'Préparation calme · timing factuel · local',
- privacy:'Votre session reste dans ce navigateur sauf export. Aucun compte ni cloud requis.',
- painTitle:'Quelle était l’intensité ?',painSub:'Auto-évaluation facultative de 0 à 10, modifiable plus tard.',
- notePlaceholder:'Note facultative',notRated:'Non évalué',save:'Enregistrer',contractionRunning:'Contraction en cours',tapToEnd:'touchez pour terminer'
-},
-es: {
- trackNow:'Registrar ahora',tapStart:'Toca cuando empiece una contracción. Los datos permanecen en este dispositivo.',start:'Iniciar contracción',end:'Finalizar contracción',
- rhythm:'Ritmo',recentTiming:'Tiempos recientes — sin predicción',lastContraction:'Última contracción',duration:'Duración',startToStart:'Inicio → inicio',
- safety:'ConTrack registra tiempos e intensidad percibida. No diagnostica la fase del parto ni sustituye la orientación del equipo de maternidad.',
- track:'Registrar',history:'Historial',summary:'Resumen',more:'Más',historySub:'Revisa tiempos, añade intensidad después o corrige notas sin cambiar la hora original.',
- summarySub:'Resumen factual de la sesión actual.',pattern:'Patrón de contracciones',chartNote:'Barras de duración · puntos de intensidad',contractions:'Contracciones',
- avgDuration:'Duración prom.',avgInterval:'Intervalo prom.',avgRest:'Descanso prom.',intensitySummary:'Intensidad',moreSub:'Idioma, estilo visual, sesión y datos locales.',
- language:'Idioma',designStudio:'Estudio de diseño',sessionData:'Sesión y datos',exportCsv:'Exportar CSV',exportCsvSub:'Tiempo, descanso, intensidad y notas',
- exportJson:'Exportar JSON',exportJsonSub:'Copia local completa',newSession:'Nueva sesión',newSessionSub:'Borra la lista actual en este dispositivo',
- export:'Exportar',reset:'Reiniciar',brandLine:'Preparación serena · tiempo factual · local',
- privacy:'La sesión se guarda solo en este navegador salvo que la exportes. No se requiere cuenta ni nube.',
- painTitle:'¿Qué intensidad tuvo?',painSub:'Valoración opcional de 0–10. Puedes añadirla o cambiarla después.',
- notePlaceholder:'Nota opcional',notRated:'Sin valorar',save:'Guardar',contractionRunning:'Contracción activa',tapToEnd:'toca para finalizar'
-},
-zh: {
- trackNow:'开始记录',tapStart:'宫缩开始时点击。数据仅保存在此设备。',start:'开始宫缩',end:'结束宫缩',
- rhythm:'节律',recentTiming:'近期时间 — 不作预测',lastContraction:'最近一次宫缩',duration:'持续时间',startToStart:'开始 → 开始',
- safety:'ConTrack 仅记录时间和自评强度，不诊断产程阶段，也不能替代产科团队建议。',
- track:'记录',history:'历史',summary:'摘要',more:'更多',historySub:'查看时间、稍后补充强度或修改备注，不改变原始时间戳。',
- summarySub:'当前记录的客观摘要。',pattern:'宫缩节律',chartNote:'持续时间柱 · 强度点',contractions:'宫缩次数',
- avgDuration:'平均持续',avgInterval:'平均间隔',avgRest:'平均休息',intensitySummary:'强度',moreSub:'语言、视觉样式、记录与本地数据。',
- language:'语言',designStudio:'设计主题',sessionData:'记录与数据',exportCsv:'导出 CSV',exportCsvSub:'时间、休息、强度和备注',
- exportJson:'导出 JSON',exportJsonSub:'完整本地备份',newSession:'新记录',newSessionSub:'清除此设备上的当前宫缩列表',
- export:'导出',reset:'重置',brandLine:'平静待产 · 客观计时 · 本地优先',
- privacy:'除非导出，记录仅保存在此浏览器中。无需账户或云端连接。',
- painTitle:'这次感觉有多强？',painSub:'可选 0–10 自评，可稍后在历史中补充或修改。',
- notePlaceholder:'可选备注',notRated:'未评分',save:'保存',contractionRunning:'宫缩进行中',tapToEnd:'点击结束'
-},
-fa: {
- trackNow:'ثبت اکنون',tapStart:'با شروع انقباض لمس کنید. داده‌ها روی همین دستگاه می‌مانند.',start:'شروع انقباض',end:'پایان انقباض',
- rhythm:'ریتم',recentTiming:'زمان‌های اخیر — بدون پیش‌بینی',lastContraction:'آخرین انقباض',duration:'مدت',startToStart:'شروع ← شروع',
- safety:'ConTrack فقط زمان و شدت خوداظهاری را ثبت می‌کند و مرحله زایمان را تشخیص نمی‌دهد.',
- track:'ثبت',history:'تاریخچه',summary:'خلاصه',more:'بیشتر',historySub:'زمان‌ها را مرور کنید و شدت یا یادداشت را بعداً اضافه کنید.',
- summarySub:'نمای واقعی از جلسه فعلی.',pattern:'الگوی انقباض',chartNote:'میله مدت · نقطه شدت',contractions:'انقباض‌ها',
- avgDuration:'میانگین مدت',avgInterval:'میانگین فاصله',avgRest:'میانگین استراحت',intensitySummary:'شدت',moreSub:'زبان، ظاهر، جلسه و داده محلی.',
- language:'زبان',designStudio:'استودیو طراحی',sessionData:'جلسه و داده',exportCsv:'خروجی CSV',exportCsvSub:'زمان، استراحت، شدت و یادداشت',
- exportJson:'خروجی JSON',exportJsonSub:'پشتیبان کامل محلی',newSession:'جلسه جدید',newSessionSub:'فهرست فعلی را روی این دستگاه پاک می‌کند',
- export:'خروجی',reset:'بازنشانی',brandLine:'آمادگی آرام · زمان‌بندی واقعی · محلی',
- privacy:'جلسه فقط در همین مرورگر ذخیره می‌شود مگر اینکه آن را خروجی بگیرید.',
- painTitle:'شدت آن چقدر بود؟',painSub:'امتیاز اختیاری ۰ تا ۱۰؛ بعداً قابل تغییر است.',
- notePlaceholder:'یادداشت اختیاری',notRated:'بدون امتیاز',save:'ذخیره',contractionRunning:'انقباض فعال',tapToEnd:'برای پایان لمس کنید'
-},
-ar: {
- trackNow:'التسجيل الآن',tapStart:'المسي عند بدء الانقباض. تبقى البيانات على هذا الجهاز.',start:'بدء الانقباض',end:'إنهاء الانقباض',
- rhythm:'الإيقاع',recentTiming:'التوقيت الأخير — دون تنبؤ',lastContraction:'آخر انقباض',duration:'المدة',startToStart:'بداية ← بداية',
- safety:'يسجل ConTrack التوقيت والشدة الذاتية فقط. لا يشخّص مرحلة المخاض ولا يستبدل نصيحة فريق الولادة.',
- track:'تسجيل',history:'السجل',summary:'الملخص',more:'المزيد',historySub:'راجعي التوقيت وأضيفي الشدة لاحقاً أو صححي الملاحظات.',
- summarySub:'ملخص واقعي للجلسة الحالية.',pattern:'نمط الانقباضات',chartNote:'أعمدة المدة · نقاط الشدة',contractions:'الانقباضات',
- avgDuration:'متوسط المدة',avgInterval:'متوسط الفاصل',avgRest:'متوسط الراحة',intensitySummary:'الشدة',moreSub:'اللغة، النمط، الجلسة والبيانات المحلية.',
- language:'اللغة',designStudio:'استوديو التصميم',sessionData:'الجلسة والبيانات',exportCsv:'تصدير CSV',exportCsvSub:'التوقيت والراحة والشدة والملاحظات',
- exportJson:'تصدير JSON',exportJsonSub:'نسخة محلية كاملة',newSession:'جلسة جديدة',newSessionSub:'يمسح قائمة الانقباضات الحالية على هذا الجهاز',
- export:'تصدير',reset:'إعادة ضبط',brandLine:'استعداد هادئ · توقيت واقعي · محلي',
- privacy:'تبقى الجلسة في هذا المتصفح فقط ما لم تقومي بتصديرها.',
- painTitle:'ما شدة الإحساس؟',painSub:'تقييم اختياري من 0 إلى 10 ويمكن تعديله لاحقاً.',
- notePlaceholder:'ملاحظة اختيارية',notRated:'غير مقيّم',save:'حفظ',contractionRunning:'انقباض جارٍ',tapToEnd:'المسي للإنهاء'
-},
-hi: {
- trackNow:'अभी ट्रैक करें',tapStart:'संकुचन शुरू होते ही टैप करें। डेटा इसी डिवाइस पर रहता है।',start:'संकुचन शुरू करें',end:'संकुचन समाप्त करें',
- rhythm:'लय',recentTiming:'हाल का समय — कोई भविष्यवाणी नहीं',lastContraction:'पिछला संकुचन',duration:'अवधि',startToStart:'शुरू → शुरू',
- safety:'ConTrack केवल समय और स्वयं बताई गई तीव्रता दर्ज करता है। यह प्रसव चरण का निदान नहीं करता।',
- track:'ट्रैक',history:'इतिहास',summary:'सारांश',more:'अधिक',historySub:'समय देखें, बाद में तीव्रता जोड़ें या नोट सुधारें।',
- summarySub:'वर्तमान सत्र का तथ्यात्मक सारांश।',pattern:'संकुचन पैटर्न',chartNote:'अवधि बार · तीव्रता बिंदु',contractions:'संकुचन',
- avgDuration:'औसत अवधि',avgInterval:'औसत अंतराल',avgRest:'औसत आराम',intensitySummary:'तीव्रता',moreSub:'भाषा, दृश्य शैली, सत्र और स्थानीय डेटा।',
- language:'भाषा',designStudio:'डिज़ाइन स्टूडियो',sessionData:'सत्र और डेटा',exportCsv:'CSV निर्यात',exportCsvSub:'समय, आराम, तीव्रता और नोट',
- exportJson:'JSON निर्यात',exportJsonSub:'पूरा स्थानीय बैकअप',newSession:'नया सत्र',newSessionSub:'इस डिवाइस की वर्तमान सूची साफ करता है',
- export:'निर्यात',reset:'रीसेट',brandLine:'शांत तैयारी · तथ्यात्मक समय · स्थानीय',
- privacy:'निर्यात के बिना सत्र केवल इसी ब्राउज़र में रहता है।',
- painTitle:'यह कितना तीव्र लगा?',painSub:'0–10 का वैकल्पिक स्व-मूल्यांकन; बाद में बदला जा सकता है।',
- notePlaceholder:'वैकल्पिक नोट',notRated:'रेट नहीं किया',save:'सहेजें',contractionRunning:'संकुचन चल रहा है',tapToEnd:'समाप्त करने के लिए टैप करें'
-},
-ru: {
- trackNow:'Записать сейчас',tapStart:'Нажмите при начале схватки. Данные остаются на устройстве.',start:'Начать схватку',end:'Завершить схватку',
- rhythm:'Ритм',recentTiming:'Последние интервалы — без прогнозов',lastContraction:'Последняя схватка',duration:'Длительность',startToStart:'Начало → начало',
- safety:'ConTrack записывает время и субъективную интенсивность. Он не определяет стадию родов и не заменяет советы родильной команды.',
- track:'Трек',history:'История',summary:'Сводка',more:'Ещё',historySub:'Проверяйте время, добавляйте интенсивность позже или исправляйте заметки.',
- summarySub:'Фактический снимок текущей сессии.',pattern:'Паттерн схваток',chartNote:'Столбцы длительности · точки интенсивности',contractions:'Схватки',
- avgDuration:'Средняя длит.',avgInterval:'Средний интервал',avgRest:'Средний отдых',intensitySummary:'Интенсивность',moreSub:'Язык, оформление, сессия и локальные данные.',
- language:'Язык',designStudio:'Дизайн',sessionData:'Сессия и данные',exportCsv:'Экспорт CSV',exportCsvSub:'Время, отдых, интенсивность и заметки',
- exportJson:'Экспорт JSON',exportJsonSub:'Полная локальная копия',newSession:'Новая сессия',newSessionSub:'Очищает текущий список на устройстве',
- export:'Экспорт',reset:'Сброс',brandLine:'Спокойная подготовка · фактический тайминг · локально',
- privacy:'Сессия хранится только в этом браузере, пока вы её не экспортируете.',
- painTitle:'Насколько интенсивно?',painSub:'Необязательная оценка 0–10, которую можно изменить позже.',
- notePlaceholder:'Необязательная заметка',notRated:'Без оценки',save:'Сохранить',contractionRunning:'Схватка идёт',tapToEnd:'нажмите для завершения'
-},
-ko: {
- trackNow:'지금 기록',tapStart:'수축이 시작될 때 누르세요. 데이터는 이 기기에만 저장됩니다.',start:'수축 시작',end:'수축 종료',
- rhythm:'리듬',recentTiming:'최근 타이밍 — 예측 없음',lastContraction:'최근 수축',duration:'지속 시간',startToStart:'시작 → 시작',
- safety:'ConTrack은 시간과 본인 평가 강도만 기록합니다. 분만 단계를 진단하지 않으며 의료진의 조언을 대신하지 않습니다.',
- track:'기록',history:'기록 목록',summary:'요약',more:'더보기',historySub:'시간을 확인하고 강도를 나중에 추가하거나 메모를 수정할 수 있습니다.',
- summarySub:'현재 세션의 사실 기반 요약입니다.',pattern:'수축 패턴',chartNote:'지속 시간 막대 · 강도 점',contractions:'수축 횟수',
- avgDuration:'평균 지속',avgInterval:'평균 간격',avgRest:'평균 휴식',intensitySummary:'강도',moreSub:'언어, 시각 스타일, 세션 및 로컬 데이터.',
- language:'언어',designStudio:'디자인 스튜디오',sessionData:'세션 및 데이터',exportCsv:'CSV 내보내기',exportCsvSub:'시간, 휴식, 강도, 메모',
- exportJson:'JSON 내보내기',exportJsonSub:'전체 로컬 백업',newSession:'새 세션',newSessionSub:'이 기기의 현재 수축 목록을 지웁니다',
- export:'내보내기',reset:'초기화',brandLine:'차분한 준비 · 사실 기반 타이밍 · 로컬 우선',
- privacy:'내보내지 않는 한 세션은 이 브라우저에만 저장됩니다.',
- painTitle:'얼마나 강하게 느껴졌나요?',painSub:'선택적 0–10 자기 평가이며 나중에 수정할 수 있습니다.',
- notePlaceholder:'선택 메모',notRated:'평가 안 함',save:'저장',contractionRunning:'수축 진행 중',tapToEnd:'눌러 종료'
-},
-ja: {
- trackNow:'今すぐ記録',tapStart:'陣痛が始まったらタップ。データはこの端末に保存されます。',start:'陣痛を開始',end:'陣痛を終了',
- rhythm:'リズム',recentTiming:'最近のタイミング — 予測なし',lastContraction:'直近の陣痛',duration:'持続時間',startToStart:'開始 → 開始',
- safety:'ConTrack は時間と自己評価の強さを記録します。分娩段階を診断せず、医療チームの助言に代わるものではありません。',
- track:'記録',history:'履歴',summary:'概要',more:'その他',historySub:'時間を確認し、強さを後から追加したりメモを修正できます。',
- summarySub:'現在のセッションの事実ベースの概要です。',pattern:'陣痛パターン',chartNote:'持続時間バー · 強度ドット',contractions:'陣痛回数',
- avgDuration:'平均持続',avgInterval:'平均間隔',avgRest:'平均休息',intensitySummary:'強度',moreSub:'言語、表示スタイル、セッション、ローカルデータ。',
- language:'言語',designStudio:'デザインスタジオ',sessionData:'セッションとデータ',exportCsv:'CSV 書き出し',exportCsvSub:'時間、休息、強度、メモ',
- exportJson:'JSON 書き出し',exportJsonSub:'完全なローカルバックアップ',newSession:'新しいセッション',newSessionSub:'この端末の現在の陣痛一覧を消去します',
- export:'書き出し',reset:'リセット',brandLine:'穏やかな準備 · 事実ベースの計時 · ローカル優先',
- privacy:'書き出さない限り、セッションはこのブラウザだけに保存されます。',
- painTitle:'どのくらい強く感じましたか？',painSub:'任意の 0–10 自己評価。後から変更できます。',
- notePlaceholder:'任意のメモ',notRated:'未評価',save:'保存',contractionRunning:'陣痛進行中',tapToEnd:'タップで終了'
-}
-};
-
-let state = {
-  contractions: [],
-  activeStart: null,
-  theme: 'hanging',
-  language: 'en',
-  sessionStartedAt: Date.now()
-};
-let pendingPainId = null;
-let selectedPain = null;
-let editId = null;
-let tickHandle = null;
-let currentPage = 'track';
-
-function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE) || 'null');
-    if (saved && typeof saved === 'object') state = {...state,...saved};
-  } catch(e) {}
-}
-function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
-function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-function formatClock(ms) {
-  const s = Math.max(0, Math.floor(ms/1000));
-  const m = Math.floor(s/60), r=s%60;
-  return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0');
-}
-function formatShort(sec) {
-  if (sec == null || !isFinite(sec)) return '—';
-  sec = Math.max(0,Math.round(sec));
-  if (sec < 60) return sec+'s';
-  return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
-}
-function timeOf(ts) { return new Intl.DateTimeFormat(state.language==='zh'?'zh-CN':state.language,{hour:'2-digit',minute:'2-digit'}).format(new Date(ts)); }
-function toast(msg) {
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1700);
-}
-function t(key) { return (I18N[state.language]||I18N.en)[key] || I18N.en[key] || key; }
-
-function applyLanguage() {
-  const lang = state.language;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = RTL_LANGS.has(lang)?'rtl':'ltr';
-  document.getElementById('app').classList.toggle('rtl',RTL_LANGS.has(lang));
-  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPlaceholder); });
-  document.getElementById('languageSelect').value = lang;
-  updateTimerUI();
-  renderAll();
-}
-function applyTheme(name) {
-  state.theme = themes[name]?name:'hanging';
-  const th=themes[state.theme].vars, root=document.documentElement;
-  for (const [k,v] of Object.entries(th)) {
-    const map={surface2:'--surface-2',accentStrong:'--accent-strong'};
-    root.style.setProperty(map[k]||'--'+k,v);
-  }
-  document.querySelector('meta[name="theme-color"]').setAttribute('content',th.bg);
-  document.querySelectorAll('.theme-card').forEach(x=>x.classList.toggle('active',x.dataset.theme===state.theme));
-  saveState(); setTimeout(drawCharts,30);
-}
-function renderThemes() {
-  const grid=document.getElementById('themeGrid'); grid.innerHTML='';
-  Object.entries(themes).forEach(([key,th])=>{
-    const b=document.createElement('button'); b.className='theme-card'; b.dataset.theme=key;
-    b.innerHTML=`<div class="theme-preview" style="background:${th.vars.bg};color:${th.vars.earth};border:1px solid ${th.vars.dune}">
-      <div class="minirow"><i class="a"></i><i class="b" style="background:${th.vars.accent}"></i></div>
-      <div style="height:26px;border-radius:10px;background:${th.vars.surface};border:1px solid ${th.vars.dune}"></div>
-    </div><div class="theme-name">${th.name}</div><div class="theme-desc">${th.desc}</div>`;
-    b.onclick=()=>applyTheme(key); grid.appendChild(b);
-  });
-}
-function switchPage(page) {
-  currentPage = page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+page));
-  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-  if(page==='summary'||page==='track') setTimeout(drawCharts,40);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function startContraction() {
-  if(state.activeStart) return;
-  state.activeStart=Date.now(); saveState(); startTick(); updateTimerUI(); renderAll();
-}
-function endContraction() {
-  if(!state.activeStart) return;
-  const end=Date.now(), start=state.activeStart;
-  const prev=state.contractions[state.contractions.length-1];
-  const item={
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    start,end,
-    duration:(end-start)/1000,
-    interval:prev ? (start-prev.start)/1000 : null,
-    rest:prev ? (start-prev.end)/1000 : null,
-    pain:null,note:''
+(() => {
+  const STORE='contrack_v3_state';
+  const defaultState={
+    contractions:[], activeStart:null, theme:'hanging', lang:'en', pendingIntensityId:null, summaryRange:60, historyFilter:'today'
   };
-  state.contractions.push(item); state.activeStart=null; saveState(); stopTick(); updateTimerUI(); renderAll();
-  openPain(item.id,false);
-}
-function startTick() {
-  clearInterval(tickHandle); tickHandle=setInterval(()=>{updateTimerUI();},250);
-}
-function stopTick() { clearInterval(tickHandle); tickHandle=null; }
-function updateTimerUI() {
-  const active=!!state.activeStart, elapsed=active?Date.now()-state.activeStart:0;
-  const timer=document.getElementById('timer'), btn=document.getElementById('toggleTimer'), txt=document.getElementById('toggleText');
-  timer.textContent=formatClock(elapsed); timer.classList.toggle('active',active);
-  btn.classList.toggle('active',active); txt.textContent=active?t('end'):t('start');
-  btn.setAttribute('aria-label',active?t('end'):t('start'));
-  document.getElementById('activeBar').classList.toggle('show',active);
-  document.getElementById('activeBarTime').textContent=formatClock(elapsed);
-}
-function openPain(id,isEdit) {
-  editId=isEdit?id:null; pendingPainId=id;
-  const item=state.contractions.find(x=>x.id===id);
-  selectedPain=item?.pain ?? null;
-  document.querySelectorAll('.pain-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.pain)===selectedPain));
-  document.getElementById('noteInput').value=item?.note||'';
-  document.getElementById('painSheet').classList.add('open');
-}
-function closePain() { document.getElementById('painSheet').classList.remove('open'); pendingPainId=null; editId=null; selectedPain=null; }
-function savePain(useRating=true) {
-  const item=state.contractions.find(x=>x.id===pendingPainId);
-  if(item) { item.pain=useRating?selectedPain:null; item.note=document.getElementById('noteInput').value.trim(); saveState(); }
-  closePain(); renderAll();
-}
-function renderPainGrid() {
-  const g=document.getElementById('painGrid'); g.innerHTML='';
-  for(let i=0;i<=10;i++) {
-    const b=document.createElement('button'); b.className='pain-btn'; b.textContent=i; b.dataset.pain=i;
-    b.onclick=()=>{selectedPain=i; document.querySelectorAll('.pain-btn').forEach(x=>x.classList.toggle('selected',x===b));};
-    g.appendChild(b);
-  }
-}
-function renderLast() {
-  const arr=state.contractions, last=arr[arr.length-1];
-  document.getElementById('rhythmCount').textContent=arr.length?arr.length+' total':'0';
-  document.getElementById('lastTime').textContent=last?timeOf(last.start):'—';
-  document.getElementById('lastDuration').textContent=last?formatShort(last.duration):'—';
-  document.getElementById('lastInterval').textContent=last?formatShort(last.interval):'—';
-}
-function renderHistory() {
-  const host=document.getElementById('historyList'); host.innerHTML='';
-  const arr=[...state.contractions].reverse();
-  if(!arr.length) { host.innerHTML=`<div class="panel empty">${t('historySub')}</div>`; return; }
-  arr.forEach((c,idx)=>{
-    const el=document.createElement('article'); el.className='history-item';
-    const pain=c.pain==null?t('notRated'):c.pain+'/10';
-    el.innerHTML=`<div class="history-top"><div><div class="history-time">${timeOf(c.start)}</div><div class="history-meta">#${state.contractions.length-idx} · ${new Date(c.start).toLocaleDateString(state.language)}</div></div><div class="pain-badge">${pain}</div></div>
-      <div class="history-stats">
-        <div class="history-stat"><b>${formatShort(c.duration)}</b><span>${t('duration')}</span></div>
-        <div class="history-stat"><b>${formatShort(c.interval)}</b><span>${t('startToStart')}</span></div>
-        <div class="history-stat"><b>${formatShort(c.rest)}</b><span>Rest</span></div>
-      </div>
-      ${c.note?`<div style="margin-top:11px;font-size:13px;color:var(--muted)">${escapeHtml(c.note)}</div>`:''}
-      <button class="text-btn" data-edit="${c.id}">${c.pain==null?t('painTitle'):'Edit intensity / note'}</button>`;
-    host.appendChild(el);
-  });
-  host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openPain(b.dataset.edit,true));
-}
-function escapeHtml(s) { return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-function avg(values) {
-  const a=values.filter(v=>typeof v==='number'&&isFinite(v)); return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-}
-function renderSummary() {
-  const a=state.contractions;
-  document.getElementById('kpiCount').textContent=a.length;
-  document.getElementById('kpiDuration').textContent=formatShort(avg(a.map(x=>x.duration)));
-  document.getElementById('kpiInterval').textContent=formatShort(avg(a.map(x=>x.interval)));
-  document.getElementById('kpiRest').textContent=formatShort(avg(a.map(x=>x.rest)));
-  const pains=a.map(x=>x.pain).filter(x=>x!=null);
-  const ps=document.getElementById('painSummary');
-  if(!pains.length) ps.textContent='No intensity ratings yet.';
-  else ps.textContent=`${pains.length} rated · average ${avg(pains).toFixed(1)}/10 · range ${Math.min(...pains)}–${Math.max(...pains)}`;
-  const first=a[0], last=a[a.length-1];
-  document.getElementById('sessionRange').textContent=first&&last?`${timeOf(first.start)}–${timeOf(last.end)}`:'—';
-}
-function fitCanvas(canvas) {
-  const dpr=Math.max(1,window.devicePixelRatio||1), rect=canvas.getBoundingClientRect();
-  canvas.width=Math.floor(rect.width*dpr); canvas.height=Math.floor(rect.height*dpr);
-  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); return {ctx,w:rect.width,h:rect.height};
-}
-function drawRoundedRect(ctx,x,y,w,h,r) {
-  r=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
-}
-function drawRhythm() {
-  const canvas=document.getElementById('rhythmCanvas'); if(!canvas.offsetParent)return;
-  const {ctx,w,h}=fitCanvas(canvas), arr=state.contractions.slice(-10);
-  ctx.clearRect(0,0,w,h);
-  const dune=cssVar('--dune'), accent=cssVar('--accent'), earth=cssVar('--earth'), muted=cssVar('--muted');
-  ctx.strokeStyle=dune; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(0,h-13);ctx.lineTo(w,h-13);ctx.stroke();
-  if(!arr.length){ctx.fillStyle=muted;ctx.font='12px '+getComputedStyle(document.body).fontFamily;ctx.fillText('No contractions recorded yet',6,h/2);return;}
-  const max=Math.max(80,...arr.map(x=>x.duration)); const gap=8, bw=Math.max(10,(w-gap*(arr.length-1))/arr.length);
-  arr.forEach((c,i)=>{const bh=Math.max(10,(c.duration/max)*(h-23)); const x=i*(bw+gap), y=h-13-bh; ctx.fillStyle=accent;drawRoundedRect(ctx,x,y,bw,bh,6);ctx.fill(); if(c.pain!=null){ctx.fillStyle=earth;ctx.beginPath();ctx.arc(x+bw/2,Math.max(6,y-6),3.4,0,Math.PI*2);ctx.fill();}});
-}
-function drawSummary() {
-  const canvas=document.getElementById('summaryCanvas'); if(!canvas.offsetParent)return;
-  const {ctx,w,h}=fitCanvas(canvas), arr=state.contractions.slice(-12);
-  ctx.clearRect(0,0,w,h);
-  const dune=cssVar('--dune'), accent=cssVar('--accent'), earth=cssVar('--earth'), muted=cssVar('--muted'), surface=cssVar('--surface');
-  ctx.strokeStyle=dune; ctx.lineWidth=1;
-  for(let i=0;i<4;i++){const y=20+i*(h-44)/3;ctx.beginPath();ctx.moveTo(4,y);ctx.lineTo(w-4,y);ctx.stroke();}
-  if(!arr.length){ctx.fillStyle=muted;ctx.font='13px '+getComputedStyle(document.body).fontFamily;ctx.textAlign='center';ctx.fillText('No data yet',w/2,h/2);ctx.textAlign='start';return;}
-  const max=Math.max(90,...arr.map(x=>x.duration)); const gap=8, innerW=w-12; const bw=Math.max(11,(innerW-gap*(arr.length-1))/arr.length);
-  arr.forEach((c,i)=>{const bh=(c.duration/max)*(h-64);const x=6+i*(bw+gap),y=h-30-bh;ctx.fillStyle=accent;drawRoundedRect(ctx,x,y,bw,bh,6);ctx.fill();if(c.pain!=null){const py=18+(10-c.pain)/10*(h-62);ctx.fillStyle=earth;ctx.beginPath();ctx.arc(x+bw/2,py,4.2,0,Math.PI*2);ctx.fill();ctx.strokeStyle=surface;ctx.lineWidth=2;ctx.stroke();}ctx.fillStyle=muted;ctx.font='10px '+getComputedStyle(document.body).fontFamily;ctx.textAlign='center';ctx.fillText(String(state.contractions.indexOf(c)+1),x+bw/2,h-10);});
-  ctx.textAlign='start';
-}
-function drawCharts() { drawRhythm(); drawSummary(); }
-function renderAll() { renderLast(); renderHistory(); renderSummary(); drawCharts(); }
-function exportBlob(content,name,type) {
-  const blob=new Blob([content],{type}), url=URL.createObjectURL(blob), a=document.createElement('a');
-  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
-}
-function exportCsv() {
-  const head=['id','start_iso','end_iso','duration_s','start_interval_s','rest_s','pain_0_10','note'];
-  const rows=state.contractions.map(c=>[c.id,new Date(c.start).toISOString(),new Date(c.end).toISOString(),c.duration.toFixed(1),c.interval?.toFixed(1)||'',c.rest?.toFixed(1)||'',c.pain??'',c.note||'']);
-  const esc=v=>`"${String(v).replaceAll('"','""')}"`;
-  exportBlob([head,...rows].map(r=>r.map(esc).join(',')).join('\n'),'ConTrack_HangingSense_session.csv','text/csv');
-}
-function exportJson() { exportBlob(JSON.stringify({app:'ConTrack @ HangingSense',version:'3.0',...state},null,2),'ConTrack_HangingSense_session.json','application/json'); }
+  let state=load();
+  let tick=null;
 
-function downloadCanvas(canvas,name) {
-  canvas.toBlob(blob=>{ if(blob) exportBlob(blob,name,'image/png'); }, 'image/png');
-}
-function fileStamp() {
-  const d=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-}
-function localIsoDay(ts) {
-  const d=new Date(ts), pad=n=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-function createExportSurface(width=1400,height=1800) {
-  const canvas=document.createElement('canvas');
-  canvas.width=width; canvas.height=height;
-  const ctx=canvas.getContext('2d');
-  const bg=cssVar('--bg'), sand=cssVar('--sand');
-  const grad=ctx.createLinearGradient(0,0,width,height);
-  grad.addColorStop(0,bg); grad.addColorStop(1,'#fffdf8');
-  ctx.fillStyle=grad; ctx.fillRect(0,0,width,height);
-  ctx.fillStyle='rgba(217,181,160,0.16)';
-  ctx.beginPath(); ctx.arc(width*0.16, height*0.1, 180, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(width*0.88, height*0.06, 130, 0, Math.PI*2); ctx.fill();
-  return {canvas,ctx,width,height};
-}
-function roundRectPath(ctx,x,y,w,h,r){
-  const rr=Math.min(r,w/2,h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+rr,y);
-  ctx.arcTo(x+w,y,x+w,y+h,rr);
-  ctx.arcTo(x+w,y+h,x,y+h,rr);
-  ctx.arcTo(x,y+h,x,y,rr);
-  ctx.arcTo(x,y,x+w,y,rr);
-  ctx.closePath();
-}
-function fillRoundRect(ctx,x,y,w,h,r,fill,stroke=null){
-  roundRectPath(ctx,x,y,w,h,r);
-  if(fill){ctx.fillStyle=fill;ctx.fill();}
-  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
-}
-function drawExportHeader(ctx,w,title,subtitle,rightText=''){ 
-  ctx.fillStyle=cssVar('--text');
-  ctx.font='700 52px Manrope, sans-serif';
-  ctx.fillText('ConTrack', 80, 104);
-  ctx.fillStyle=cssVar('--muted');
-  ctx.font='600 24px Manrope, sans-serif';
-  ctx.fillText(subtitle, 82, 142);
-  if(rightText){
-    fillRoundRect(ctx,w-320,56,240,74,36,'rgba(255,252,247,0.9)',cssVar('--dune'));
-    ctx.fillStyle=cssVar('--earth');
-    ctx.font='600 28px Manrope, sans-serif';
-    ctx.fillText(rightText, w-275, 103);
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const els={
+    timerButton:$('#timerButton'),timerValue:$('#timerValue'),timerCaption:$('#timerCaption'),heroState:$('#heroState'),heroSub:$('#heroSub'),
+    lastValue:$('#lastValue'),rhythm:$('#rhythm'),historyList:$('#historyList'),summaryChart:$('#summaryChart'),metrics:$('#metrics'),sessionSummaryText:$('#sessionSummaryText'),
+    intensitySheet:$('#intensitySheet'),editSheet:$('#editSheet'),sheetBackdrop:$('#sheetBackdrop'),intensityGrid:$('#intensityGrid'),savedDuration:$('#savedDuration'),toast:$('#toast')
+  };
+
+  const I18N={
+    en:{companion:'your labour companion',trackKicker:'Contraction timer',ready:'Ready',tapWhenBegins:'Tap when a contraction begins',start:'Start',stop:'Stop',recording:'Recording',inProgress:'Contraction in progress',lastContraction:'Last contraction',noneYet:'None recorded yet',recentRhythm:'Recent rhythm',lastFive:'Last 5 contractions',track:'Track',history:'History',summary:'Summary',more:'More',historySubtitle:'Your contraction record',today:'Today',all:'All',duration:'Duration (sec)',interval:'Spacing',intensity:'Intensity',summarySubtitle:'Your contraction activity at a glance',recentPattern:'Recent pattern',lastHourDescription:'Contractions over the last 60 minutes',last60:'Last 60 minutes',sessionSummary:'Session summary',shareSummary:'Share summary',exportPng:'Export chart PNG',moreSubtitle:'Personalise, export and learn',appearance:'Appearance',language:'Language',data:'Data',exportCsv:'Export CSV',backupJson:'Backup JSON',restoreJson:'Restore JSON',resetAll:'Reset all data',brandStatement:'A calm digital birth companion with a human identity.',saved:'Contraction saved',howIntense:'How intense was it?',skip:'Skip',editContraction:'Edit contraction',startTime:'Start time',notes:'Notes',save:'Save',delete:'Delete',contractions:'contractions',typicalDuration:'Typical duration',typicalSpacing:'Typical spacing',typicalIntensity:'Typical intensity',noData:'No contractions recorded yet.',shareFallback:'Summary copied to clipboard.',exported:'Export created.',restored:'Backup restored.',resetConfirm:'Delete all recorded contractions and settings?',deleted:'Contraction deleted.',savedToast:'Saved.',invalidBackup:'Could not restore this file.'},
+    de:{companion:'dein Begleiter für die Geburt',trackKicker:'Wehentimer',ready:'Bereit',tapWhenBegins:'Tippen, wenn eine Wehe beginnt',start:'Start',stop:'Stopp',recording:'Aufzeichnung',inProgress:'Wehe läuft',lastContraction:'Letzte Wehe',noneYet:'Noch keine Wehe erfasst',recentRhythm:'Letzter Rhythmus',lastFive:'Letzte 5 Wehen',track:'Track',history:'Verlauf',summary:'Übersicht',more:'Mehr',historySubtitle:'Dein Wehenverlauf',today:'Heute',all:'Alle',duration:'Dauer (Sek.)',interval:'Abstand',intensity:'Intensität',summarySubtitle:'Deine Wehen auf einen Blick',recentPattern:'Letztes Muster',lastHourDescription:'Wehen der letzten 60 Minuten',last60:'Letzte 60 Minuten',sessionSummary:'Zusammenfassung',shareSummary:'Übersicht teilen',exportPng:'Diagramm als PNG',moreSubtitle:'Personalisieren, exportieren und mehr',appearance:'Design',language:'Sprache',data:'Daten',exportCsv:'CSV exportieren',backupJson:'JSON-Sicherung',restoreJson:'JSON wiederherstellen',resetAll:'Alle Daten löschen',brandStatement:'Ein ruhiger digitaler Geburtsbegleiter mit menschlicher Identität.',saved:'Wehe gespeichert',howIntense:'Wie intensiv war sie?',skip:'Überspringen',editContraction:'Wehe bearbeiten',startTime:'Startzeit',notes:'Notizen',save:'Speichern',delete:'Löschen',contractions:'Wehen',typicalDuration:'Typische Dauer',typicalSpacing:'Typischer Abstand',typicalIntensity:'Typische Intensität',noData:'Noch keine Wehen erfasst.',shareFallback:'Zusammenfassung kopiert.',exported:'Export erstellt.',restored:'Sicherung wiederhergestellt.',resetConfirm:'Alle Wehendaten und Einstellungen löschen?',deleted:'Wehe gelöscht.',savedToast:'Gespeichert.',invalidBackup:'Datei konnte nicht wiederhergestellt werden.'},
+    fr:{companion:'votre compagnon de travail',trackKicker:'Minuteur de contractions',ready:'Prête',tapWhenBegins:'Touchez quand une contraction commence',start:'Démarrer',stop:'Arrêter',recording:'En cours',inProgress:'Contraction en cours',lastContraction:'Dernière contraction',noneYet:'Aucune contraction enregistrée',recentRhythm:'Rythme récent',lastFive:'5 dernières contractions',track:'Suivi',history:'Historique',summary:'Résumé',more:'Plus',historySubtitle:'Votre historique de contractions',today:"Aujourd'hui",all:'Tout',duration:'Durée (s)',interval:'Espacement',intensity:'Intensité',summarySubtitle:'Vos contractions en un coup d’œil',recentPattern:'Rythme récent',lastHourDescription:'Contractions des 60 dernières minutes',last60:'60 dernières minutes',sessionSummary:'Résumé de session',shareSummary:'Partager le résumé',exportPng:'Exporter le graphique PNG',moreSubtitle:'Personnaliser, exporter et apprendre',appearance:'Apparence',language:'Langue',data:'Données',exportCsv:'Exporter CSV',backupJson:'Sauvegarde JSON',restoreJson:'Restaurer JSON',resetAll:'Effacer toutes les données',brandStatement:'Un compagnon numérique calme pour la naissance.',saved:'Contraction enregistrée',howIntense:'Quelle était son intensité ?',skip:'Ignorer',editContraction:'Modifier la contraction',startTime:'Heure de début',notes:'Notes',save:'Enregistrer',delete:'Supprimer',contractions:'contractions',typicalDuration:'Durée typique',typicalSpacing:'Espacement typique',typicalIntensity:'Intensité typique',noData:'Aucune contraction enregistrée.'},
+    es:{companion:'tu compañero para el parto',trackKicker:'Temporizador de contracciones',ready:'Lista',tapWhenBegins:'Toca cuando comience una contracción',start:'Iniciar',stop:'Detener',recording:'Grabando',inProgress:'Contracción en curso',lastContraction:'Última contracción',noneYet:'Aún no hay contracciones',recentRhythm:'Ritmo reciente',lastFive:'Últimas 5 contracciones',track:'Medir',history:'Historial',summary:'Resumen',more:'Más',historySubtitle:'Tu registro de contracciones',today:'Hoy',all:'Todas',duration:'Duración (s)',interval:'Intervalo',intensity:'Intensidad',summarySubtitle:'Tus contracciones de un vistazo',recentPattern:'Patrón reciente',lastHourDescription:'Contracciones de los últimos 60 minutos',last60:'Últimos 60 minutos',sessionSummary:'Resumen de sesión',shareSummary:'Compartir resumen',exportPng:'Exportar gráfico PNG',moreSubtitle:'Personaliza, exporta y aprende',appearance:'Apariencia',language:'Idioma',data:'Datos',exportCsv:'Exportar CSV',backupJson:'Copia JSON',restoreJson:'Restaurar JSON',resetAll:'Borrar todos los datos',brandStatement:'Un compañero digital y humano para el parto.',saved:'Contracción guardada',howIntense:'¿Qué intensidad tuvo?',skip:'Omitir',editContraction:'Editar contracción',startTime:'Hora de inicio',notes:'Notas',save:'Guardar',delete:'Eliminar',contractions:'contracciones',typicalDuration:'Duración típica',typicalSpacing:'Intervalo típico',typicalIntensity:'Intensidad típica',noData:'Aún no hay contracciones.'},
+    zh:{companion:'你的分娩陪伴助手',trackKicker:'宫缩计时器',ready:'准备好',tapWhenBegins:'宫缩开始时点击',start:'开始',stop:'停止',recording:'记录中',inProgress:'宫缩进行中',lastContraction:'上次宫缩',noneYet:'尚未记录宫缩',recentRhythm:'近期节律',lastFive:'最近5次宫缩',track:'计时',history:'记录',summary:'总结',more:'更多',historySubtitle:'你的宫缩记录',today:'今天',all:'全部',duration:'持续时间（秒）',interval:'间隔',intensity:'强度',summarySubtitle:'一目了然查看宫缩情况',recentPattern:'近期模式',lastHourDescription:'过去60分钟的宫缩',last60:'过去60分钟',sessionSummary:'本次总结',shareSummary:'分享总结',exportPng:'导出图表PNG',moreSubtitle:'个性化、导出与了解更多',appearance:'外观',language:'语言',data:'数据',exportCsv:'导出CSV',backupJson:'备份JSON',restoreJson:'恢复JSON',resetAll:'清除全部数据',brandStatement:'一个平静而有人情味的数字分娩陪伴助手。',saved:'宫缩已保存',howIntense:'强度如何？',skip:'跳过',editContraction:'编辑宫缩',startTime:'开始时间',notes:'备注',save:'保存',delete:'删除',contractions:'次宫缩',typicalDuration:'典型持续时间',typicalSpacing:'典型间隔',typicalIntensity:'典型强度',noData:'尚未记录宫缩。'},
+    ar:{companion:'رفيقك الهادئ أثناء المخاض',trackKicker:'مؤقت الانقباضات',ready:'جاهزة',tapWhenBegins:'اضغطي عند بدء الانقباض',start:'ابدئي',stop:'إيقاف',recording:'جارٍ التسجيل',inProgress:'الانقباض جارٍ',lastContraction:'آخر انقباض',noneYet:'لا توجد انقباضات مسجلة',recentRhythm:'الإيقاع الأخير',lastFive:'آخر 5 انقباضات',track:'تتبع',history:'السجل',summary:'الملخص',more:'المزيد',historySubtitle:'سجل الانقباضات',today:'اليوم',all:'الكل',duration:'المدة (ث)',interval:'الفاصل',intensity:'الشدة',summarySubtitle:'نظرة سريعة على نشاط الانقباضات',recentPattern:'النمط الأخير',lastHourDescription:'انقباضات آخر 60 دقيقة',last60:'آخر 60 دقيقة',sessionSummary:'ملخص الجلسة',shareSummary:'مشاركة الملخص',exportPng:'تصدير الرسم PNG',moreSubtitle:'تخصيص وتصدير والمزيد',appearance:'المظهر',language:'اللغة',data:'البيانات',exportCsv:'تصدير CSV',backupJson:'نسخة JSON',restoreJson:'استعادة JSON',resetAll:'مسح جميع البيانات',brandStatement:'رفيق رقمي هادئ للولادة بهوية إنسانية.',saved:'تم حفظ الانقباض',howIntense:'ما شدة الانقباض؟',skip:'تخطي',editContraction:'تعديل الانقباض',startTime:'وقت البدء',notes:'ملاحظات',save:'حفظ',delete:'حذف',contractions:'انقباضات',typicalDuration:'المدة المعتادة',typicalSpacing:'الفاصل المعتاد',typicalIntensity:'الشدة المعتادة',noData:'لا توجد انقباضات مسجلة.'},
+    fa:{companion:'همراه آرام شما در زایمان',trackKicker:'زمان‌سنج انقباض',ready:'آماده',tapWhenBegins:'با شروع انقباض لمس کنید',start:'شروع',stop:'توقف',recording:'در حال ثبت',inProgress:'انقباض در حال انجام',lastContraction:'آخرین انقباض',noneYet:'هنوز انقباضی ثبت نشده',recentRhythm:'ریتم اخیر',lastFive:'۵ انقباض اخیر',track:'ثبت',history:'تاریخچه',summary:'خلاصه',more:'بیشتر',historySubtitle:'سابقه انقباض‌ها',today:'امروز',all:'همه',duration:'مدت (ثانیه)',interval:'فاصله',intensity:'شدت',summarySubtitle:'نمای کلی فعالیت انقباض‌ها',recentPattern:'الگوی اخیر',lastHourDescription:'انقباض‌های ۶۰ دقیقه اخیر',last60:'۶۰ دقیقه اخیر',sessionSummary:'خلاصه جلسه',shareSummary:'اشتراک خلاصه',exportPng:'خروجی PNG نمودار',moreSubtitle:'شخصی‌سازی، خروجی و بیشتر',appearance:'ظاهر',language:'زبان',data:'داده‌ها',exportCsv:'خروجی CSV',backupJson:'پشتیبان JSON',restoreJson:'بازیابی JSON',resetAll:'حذف همه داده‌ها',brandStatement:'یک همراه دیجیتال آرام برای زایمان با هویتی انسانی.',saved:'انقباض ذخیره شد',howIntense:'شدت آن چقدر بود؟',skip:'رد کردن',editContraction:'ویرایش انقباض',startTime:'زمان شروع',notes:'یادداشت',save:'ذخیره',delete:'حذف',contractions:'انقباض',typicalDuration:'مدت معمول',typicalSpacing:'فاصله معمول',typicalIntensity:'شدت معمول',noData:'هنوز انقباضی ثبت نشده.'},
+    hi:{companion:'प्रसव के दौरान आपका शांत साथी',trackKicker:'कॉन्ट्रैक्शन टाइमर',ready:'तैयार',tapWhenBegins:'कॉन्ट्रैक्शन शुरू होने पर टैप करें',start:'शुरू',stop:'रोकें',recording:'रिकॉर्ड हो रहा है',inProgress:'कॉन्ट्रैक्शन जारी है',lastContraction:'पिछला कॉन्ट्रैक्शन',noneYet:'अभी कोई रिकॉर्ड नहीं',recentRhythm:'हाल का रिदम',lastFive:'पिछले 5 कॉन्ट्रैक्शन',track:'ट्रैक',history:'इतिहास',summary:'सारांश',more:'और',historySubtitle:'आपका कॉन्ट्रैक्शन रिकॉर्ड',today:'आज',all:'सभी',duration:'अवधि (सेकंड)',interval:'अंतर',intensity:'तीव्रता',summarySubtitle:'आपकी गतिविधि एक नज़र में',recentPattern:'हाल का पैटर्न',lastHourDescription:'पिछले 60 मिनट के कॉन्ट्रैक्शन',last60:'पिछले 60 मिनट',sessionSummary:'सेशन सारांश',shareSummary:'सारांश साझा करें',exportPng:'चार्ट PNG निर्यात करें',moreSubtitle:'व्यक्तिगत करें, निर्यात करें और जानें',appearance:'दिखावट',language:'भाषा',data:'डेटा',exportCsv:'CSV निर्यात',backupJson:'JSON बैकअप',restoreJson:'JSON पुनर्स्थापित करें',resetAll:'सभी डेटा मिटाएँ',brandStatement:'मानवीय पहचान वाला शांत डिजिटल बर्थ साथी।',saved:'कॉन्ट्रैक्शन सेव हुआ',howIntense:'यह कितना तीव्र था?',skip:'छोड़ें',editContraction:'कॉन्ट्रैक्शन संपादित करें',startTime:'शुरू होने का समय',notes:'नोट्स',save:'सेव',delete:'हटाएँ',contractions:'कॉन्ट्रैक्शन',typicalDuration:'सामान्य अवधि',typicalSpacing:'सामान्य अंतर',typicalIntensity:'सामान्य तीव्रता',noData:'अभी कोई कॉन्ट्रैक्शन रिकॉर्ड नहीं है।'},
+    ru:{companion:'ваш спокойный помощник в родах',trackKicker:'Таймер схваток',ready:'Готово',tapWhenBegins:'Нажмите, когда начнётся схватка',start:'Старт',stop:'Стоп',recording:'Запись',inProgress:'Схватка идёт',lastContraction:'Последняя схватка',noneYet:'Схваток пока нет',recentRhythm:'Недавний ритм',lastFive:'Последние 5 схваток',track:'Трек',history:'История',summary:'Сводка',more:'Ещё',historySubtitle:'История ваших схваток',today:'Сегодня',all:'Все',duration:'Длительность (с)',interval:'Интервал',intensity:'Интенсивность',summarySubtitle:'Схватки одним взглядом',recentPattern:'Недавний ритм',lastHourDescription:'Схватки за последние 60 минут',last60:'Последние 60 минут',sessionSummary:'Сводка сеанса',shareSummary:'Поделиться сводкой',exportPng:'Экспорт графика PNG',moreSubtitle:'Настройки, экспорт и информация',appearance:'Оформление',language:'Язык',data:'Данные',exportCsv:'Экспорт CSV',backupJson:'Резерв JSON',restoreJson:'Восстановить JSON',resetAll:'Удалить все данные',brandStatement:'Спокойный цифровой спутник родов с человеческим характером.',saved:'Схватка сохранена',howIntense:'Насколько сильной она была?',skip:'Пропустить',editContraction:'Изменить схватку',startTime:'Время начала',notes:'Заметки',save:'Сохранить',delete:'Удалить',contractions:'схваток',typicalDuration:'Типичная длительность',typicalSpacing:'Типичный интервал',typicalIntensity:'Типичная интенсивность',noData:'Схваток пока нет.'},
+    ko:{companion:'출산을 위한 차분한 동반자',trackKicker:'진통 타이머',ready:'준비',tapWhenBegins:'진통이 시작되면 탭하세요',start:'시작',stop:'중지',recording:'기록 중',inProgress:'진통 진행 중',lastContraction:'마지막 진통',noneYet:'아직 기록이 없습니다',recentRhythm:'최근 리듬',lastFive:'최근 5회 진통',track:'기록',history:'기록',summary:'요약',more:'더보기',historySubtitle:'진통 기록',today:'오늘',all:'전체',duration:'지속시간(초)',interval:'간격',intensity:'강도',summarySubtitle:'진통 활동을 한눈에',recentPattern:'최근 패턴',lastHourDescription:'최근 60분 진통',last60:'최근 60분',sessionSummary:'세션 요약',shareSummary:'요약 공유',exportPng:'차트 PNG 내보내기',moreSubtitle:'개인화, 내보내기 및 정보',appearance:'테마',language:'언어',data:'데이터',exportCsv:'CSV 내보내기',backupJson:'JSON 백업',restoreJson:'JSON 복원',resetAll:'모든 데이터 삭제',brandStatement:'사람다운 감성을 지닌 차분한 디지털 출산 동반자.',saved:'진통 저장됨',howIntense:'강도는 어느 정도였나요?',skip:'건너뛰기',editContraction:'진통 수정',startTime:'시작 시간',notes:'메모',save:'저장',delete:'삭제',contractions:'회 진통',typicalDuration:'일반 지속시간',typicalSpacing:'일반 간격',typicalIntensity:'일반 강도',noData:'아직 진통 기록이 없습니다.'},
+    ja:{companion:'出産に寄り添う穏やかなパートナー',trackKicker:'陣痛タイマー',ready:'準備完了',tapWhenBegins:'陣痛が始まったらタップ',start:'開始',stop:'停止',recording:'記録中',inProgress:'陣痛中',lastContraction:'前回の陣痛',noneYet:'まだ記録がありません',recentRhythm:'最近のリズム',lastFive:'最近5回の陣痛',track:'計測',history:'履歴',summary:'概要',more:'その他',historySubtitle:'陣痛の記録',today:'今日',all:'すべて',duration:'持続時間（秒）',interval:'間隔',intensity:'強度',summarySubtitle:'陣痛の状況をひと目で確認',recentPattern:'最近のパターン',lastHourDescription:'過去60分の陣痛',last60:'過去60分',sessionSummary:'セッション概要',shareSummary:'概要を共有',exportPng:'チャートPNGを出力',moreSubtitle:'外観、出力、情報',appearance:'外観',language:'言語',data:'データ',exportCsv:'CSV出力',backupJson:'JSONバックアップ',restoreJson:'JSON復元',resetAll:'すべてのデータを削除',brandStatement:'人の温かさを持つ穏やかなデジタル出産コンパニオン。',saved:'陣痛を保存しました',howIntense:'強さはどのくらいでしたか？',skip:'スキップ',editContraction:'陣痛を編集',startTime:'開始時刻',notes:'メモ',save:'保存',delete:'削除',contractions:'回の陣痛',typicalDuration:'代表的な持続時間',typicalSpacing:'代表的な間隔',typicalIntensity:'代表的な強度',noData:'まだ陣痛は記録されていません。'}
+  };
+
+  const LANGS=[['en','🇬🇧 English'],['de','🇩🇪 Deutsch'],['fr','🇫🇷 Français'],['es','🇪🇸 Español'],['fa','🇮🇷 فارسی'],['zh','🇨🇳 中文'],['hi','🇮🇳 हिन्दी'],['ar','🇸🇦 العربية'],['ru','🇷🇺 Русский'],['ko','🇰🇷 한국어'],['ja','🇯🇵 日本語']];
+  const THEMES=[
+    {id:'hanging',name:'Hanging Sense',colors:['#fff9f1','#6d3b24','#f2a13a']},
+    {id:'calm',name:'Calm',colors:['#fff8f4','#8f5a4b','#cf8d72']},
+    {id:'serenity',name:'Serenity',colors:['#f7faf8','#46655b','#9bb9ac']},
+    {id:'minimal',name:'Minimal',colors:['#fbfaf8','#37342f','#c7a36a']},
+    {id:'night',name:'Night',colors:['#171310','#d4a173','#d99138']}
+  ];
+
+  function load(){try{return {...defaultState,...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch{return {...defaultState}}}
+  function persist(){localStorage.setItem(STORE,JSON.stringify(state))}
+  function t(k){return (I18N[state.lang]||I18N.en)[k]||I18N.en[k]||k}
+  function applyI18n(){
+    document.documentElement.lang=state.lang;
+    document.documentElement.dir=['ar','fa'].includes(state.lang)?'rtl':'ltr';
+    $$('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+    renderAll();
   }
-  ctx.fillStyle=cssVar('--muted');
-  ctx.font='700 20px Manrope, sans-serif';
-  ctx.fillText(title.toUpperCase(), 80, 208);
-}
-function drawInfoCard(ctx,x,y,w,h,title,bodyLines){
-  fillRoundRect(ctx,x,y,w,h,34,'rgba(255,252,247,0.96)',cssVar('--dune'));
-  ctx.fillStyle=cssVar('--text');
-  ctx.font='700 28px Manrope, sans-serif';
-  ctx.fillText(title, x+28, y+44);
-  ctx.fillStyle=cssVar('--muted');
-  ctx.font='500 22px Manrope, sans-serif';
-  bodyLines.forEach((line,i)=>ctx.fillText(line, x+28, y+82+i*30));
-}
-function drawMetricCard(ctx,x,y,w,h,label,value){
-  fillRoundRect(ctx,x,y,w,h,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
-  ctx.fillStyle=cssVar('--muted');
-  ctx.font='500 24px Manrope, sans-serif';
-  ctx.fillText(label, x+28, y+50);
-  ctx.fillStyle=cssVar('--text');
-  ctx.font='700 62px Manrope, sans-serif';
-  ctx.fillText(value, x+28, y+128);
-}
-function drawMiniBars(ctx,x,y,w,h,data,pains=[]){
-  fillRoundRect(ctx,x,y,w,h,36,'rgba(255,252,247,0.96)',cssVar('--dune'));
-  ctx.fillStyle=cssVar('--text');
-  ctx.font='700 30px Manrope, sans-serif';
-  ctx.fillText('Contraction pattern', x+28, y+44);
-  ctx.fillStyle=cssVar('--muted');
-  ctx.font='500 20px Manrope, sans-serif';
-  ctx.fillText('Duration bars · intensity dots', x+28, y+74);
-  const inner={x:x+28,y:y+96,w:w-56,h:h-132};
-  ctx.strokeStyle=cssVar('--dune'); ctx.lineWidth=2;
-  for(let i=0;i<4;i++){
-    const gy=inner.y + i*(inner.h/3);
-    ctx.beginPath(); ctx.moveTo(inner.x,gy); ctx.lineTo(inner.x+inner.w,gy); ctx.stroke();
+  function fmtDuration(sec){sec=Math.max(0,Math.round(sec));if(sec<60)return `${sec} sec`;const m=Math.floor(sec/60),s=sec%60;return `${m}m ${String(s).padStart(2,'0')}s`}
+  function fmtDurationLocal(sec){ if(state.lang==='de') return sec<60?`${Math.round(sec)} Sek.`:`${Math.floor(sec/60)}m ${String(Math.round(sec)%60).padStart(2,'0')}s`; return fmtDuration(sec)}
+  function fmtClock(ts){return new Intl.DateTimeFormat(state.lang,{hour:'2-digit',minute:'2-digit'}).format(new Date(ts))}
+  function fmtDate(ts){return new Intl.DateTimeFormat(state.lang,{day:'2-digit',month:'short',year:'numeric'}).format(new Date(ts))}
+  function relativeAgo(ts){const s=Math.max(0,Math.round((Date.now()-ts)/1000));if(s<60)return `${s} sec ago`;const m=Math.floor(s/60);if(m<60)return `${m} min ago`;const h=Math.floor(m/60);return `${h} h ago`}
+  function vibrate(ms=20){if(navigator.vibrate)navigator.vibrate(ms)}
+  function toast(msg){els.toast.textContent=msg;els.toast.classList.add('show');setTimeout(()=>els.toast.classList.remove('show'),1800)}
+
+  function start(){state.activeStart=Date.now();persist();vibrate(35);startTicker();renderTrack()}
+  function stop(){
+    const end=Date.now(), start=state.activeStart;
+    if(!start)return;
+    const item={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),start,end,durationSec:Math.max(1,Math.round((end-start)/1000)),intensity:null,notes:''};
+    state.contractions.push(item);state.activeStart=null;state.pendingIntensityId=item.id;persist();vibrate(20);stopTicker();renderAll();openIntensity(item);
   }
-  if(!data.length){
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 24px Manrope, sans-serif';
-    ctx.fillText('No contractions recorded yet', inner.x, inner.y+inner.h/2); return;
+  function toggleTimer(){state.activeStart?stop():start()}
+  function startTicker(){stopTicker();tick=setInterval(renderTrack,250)} function stopTicker(){if(tick)clearInterval(tick);tick=null}
+
+  function renderTrack(){
+    const active=!!state.activeStart;
+    els.timerButton.classList.toggle('active',active);
+    if(active){
+      const sec=Math.floor((Date.now()-state.activeStart)/1000);els.timerValue.textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;els.timerCaption.textContent=t('stop');els.heroState.textContent=t('recording');els.heroSub.textContent=t('inProgress');
+    }else{els.timerValue.textContent='START';els.timerCaption.textContent=t('start');els.heroState.textContent=t('ready');els.heroSub.textContent=t('tapWhenBegins')}
+    const last=state.contractions.at(-1);els.lastValue.textContent=last?`${fmtDurationLocal(last.durationSec)} · ${relativeAgo(last.start)}`:t('noneYet');
+    renderRhythm();
   }
-  const max=Math.max(90,...data.map(d=>d.duration||0));
-  const gap=16, bw=Math.max(34,(inner.w-gap*(data.length-1))/data.length);
-  data.forEach((d,i)=>{
-    const bh=(d.duration/max)*(inner.h-34); const bx=inner.x+i*(bw+gap), by=inner.y+inner.h-bh;
-    fillRoundRect(ctx,bx,by,bw,bh,14,cssVar('--accent'));
-    if(d.pain!=null){
-      const py=inner.y + (10-d.pain)/10*(inner.h-24);
-      ctx.fillStyle=cssVar('--earth'); ctx.beginPath(); ctx.arc(bx+bw/2, py, 7, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle='rgba(255,252,247,0.95)'; ctx.lineWidth=3; ctx.stroke();
+  function renderRhythm(){
+    const items=state.contractions.slice(-5);els.rhythm.innerHTML='';
+    if(!items.length){for(let i=0;i<5;i++){const d=document.createElement('div');d.className='pulse';d.style.height=`${24+i*6}px`;d.style.opacity=.18;els.rhythm.append(d)}return}
+    const max=Math.max(...items.map(x=>x.durationSec),60);
+    items.forEach(x=>{const d=document.createElement('div');d.className='pulse';d.style.height=`${28+Math.min(68,x.durationSec/max*68)}px`;els.rhythm.append(d)})
+  }
+
+  function intervalFor(item){const idx=state.contractions.findIndex(x=>x.id===item.id);if(idx<=0)return null;return Math.max(0,Math.round((item.start-state.contractions[idx-1].start)/1000))}
+  function renderHistory(){
+    const list=[...state.contractions].sort((a,b)=>b.start-a.start).filter(x=>state.historyFilter!=='today'||new Date(x.start).toDateString()===new Date().toDateString());
+    els.historyList.innerHTML='';
+    if(!list.length){els.historyList.innerHTML=`<div class="history-empty">${t('noData')}</div>`;return}
+    list.forEach(item=>{
+      const row=document.createElement('button');row.className='history-row';row.dataset.id=item.id;
+      const gap=intervalFor(item);
+      row.innerHTML=`<div class="history-time"><strong>${fmtClock(item.start)}</strong><small>${fmtDate(item.start)}</small></div><div class="history-stats"><div class="stat-chip"><b>${fmtDurationLocal(item.durationSec)}</b><span>${t('duration').replace(' (sec)','').replace(' (Sek.)','')}</span></div><div class="stat-chip"><b>${gap==null?'—':fmtDurationLocal(gap)}</b><span>${t('interval')}</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="intensity-badge">${item.intensity??'—'}</div><div class="history-chevron">›</div></div>`;
+      row.addEventListener('click',()=>openEdit(item.id));els.historyList.append(row);
+    })
+  }
+
+  function filteredSummaryItems(){
+    if(state.summaryRange==='all')return state.contractions;
+    const mins=Number(state.summaryRange||60);const since=Date.now()-mins*60*1000;return state.contractions.filter(x=>x.start>=since)
+  }
+  function median(nums){if(!nums.length)return 0;const a=[...nums].sort((x,y)=>x-y),m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+  function renderSummary(){
+    const items=filteredSummaryItems();els.summaryChart.innerHTML='';
+    if(!items.length){els.summaryChart.innerHTML=`<div class="chart-empty">${t('noData')}</div>`}else{
+      const max=Math.max(...items.map(x=>x.durationSec),60);items.slice(-24).forEach(x=>{const b=document.createElement('div');b.className='chart-bar';b.style.height=`${28+Math.min(130,x.durationSec/max*130)}px`;b.title=`${fmtClock(x.start)} · ${fmtDurationLocal(x.durationSec)}${x.intensity?` · ${t('intensity')} ${x.intensity}`:''}`;els.summaryChart.append(b)})
     }
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 18px Manrope, sans-serif'; ctx.textAlign='center';
-    ctx.fillText(String(i+1), bx+bw/2, inner.y+inner.h+28);
-  });
-  ctx.textAlign='left';
-}
-function drawHistoryCards(ctx,x,y,w,items){
-  drawInfoCard(ctx,x,y,w,120,'Recent history',['Latest contractions · time, duration, interval and intensity']);
-  let yy=y+140;
-  if(!items.length){ drawInfoCard(ctx,x,yy,w,150,'No history',['No contractions recorded yet.']); return; }
-  items.forEach((item,idx)=>{
-    fillRoundRect(ctx,x,yy,w,126,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
-    ctx.fillStyle=cssVar('--text'); ctx.font='700 26px Manrope, sans-serif';
-    ctx.fillText(`#${items.length-idx}  ${timeOf(item.start)}`, x+24, yy+40);
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif';
-    ctx.fillText(`Duration ${formatShort(item.duration)}   ·   Start interval ${formatShort(item.interval)}   ·   Rest ${formatShort(item.rest)}`, x+24, yy+74);
-    ctx.fillText(`Intensity ${item.pain==null?'Not rated':item.pain+'/10'}${item.note?`   ·   ${item.note}`:''}`, x+24, yy+102);
-    yy += 144;
-  });
-}
-function drawMoreExport(ctx,w){
-  drawInfoCard(ctx,80,230,w-160,140,'More',['Design, creator and support contact overview']);
-  drawInfoCard(ctx,80,390,w-160,180,'App creator',['BenYima AI','Engineering what comes next']);
-}
-function loadImage(src){
-  return new Promise((resolve,reject)=>{
-    const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src;
-  });
-}
-async function exportCurrentScreenPng() {
-  const page=document.querySelector('.page.active')?.id?.replace('page-','') || currentPage || 'track';
-  const {canvas,ctx,width,height}=createExportSurface(1400, page==='history'?1900:1800);
-  drawExportHeader(ctx,width, page, 'by HangingSense · V3.0', 'Local · Offline');
-  if(page==='track'){
-    ctx.fillStyle=cssVar('--text'); ctx.font='700 120px Manrope, sans-serif';
-    const timeText=document.getElementById('timer').textContent || '00:00';
-    ctx.fillText(timeText,80,360);
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 28px Manrope, sans-serif';
-    ctx.fillText(t('tapStart'),80,408);
-    drawMiniBars(ctx,80,460,width-160,430,state.contractions.slice(-8));
-    drawMetricCard(ctx,80,928,(width-184)/2,170,t('lastContraction'), document.getElementById('lastTime').textContent || '—');
-    drawMetricCard(ctx,104+(width-184)/2,928,(width-184)/2,170,t('duration'), document.getElementById('lastDuration').textContent || '—');
-    drawInfoCard(ctx,80,1128,width-160,180,'Safety note',[t('safety')]);
-  } else if(page==='summary'){
-    drawMiniBars(ctx,80,230,width-160,520,state.contractions.slice(-8));
-    const gridY=782, cardW=(width-196)/2;
-    drawMetricCard(ctx,80,gridY,cardW,170,t('contractions'), String(state.contractions.length));
-    drawMetricCard(ctx,104+cardW,gridY,cardW,170,t('avgDuration'), document.getElementById('kpiDuration').textContent || '—');
-    drawMetricCard(ctx,80,gridY+190,cardW,170,t('avgInterval'), document.getElementById('kpiInterval').textContent || '—');
-    drawMetricCard(ctx,104+cardW,gridY+190,cardW,170,t('avgRest'), document.getElementById('kpiRest').textContent || '—');
-    drawInfoCard(ctx,80,gridY+392,width-160,140,'Intensity',[(document.getElementById('painSummary').textContent || 'No intensity ratings yet.')]);
-  } else if(page==='history'){
-    drawHistoryCards(ctx,80,230,width-160,[...state.contractions].slice(-6).reverse());
-  } else {
-    drawMoreExport(ctx,width);
-    try{
-      const [brand,creator,wechat,telegram] = await Promise.all([
-        loadImage('./logo-lockup.png'), loadImage('./benyima-logo.png'), loadImage('./doula-silvana-wechat.jpg'), loadImage('./doula-silvana-telegram.jpg')
-      ]);
-      ctx.drawImage(brand, 160, 460, width-320, 170);
-      fillRoundRect(ctx,80,680,width-160,170,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
-      ctx.drawImage(creator, 110, 710, 110, 110);
-      ctx.fillStyle=cssVar('--text'); ctx.font='700 30px Manrope, sans-serif'; ctx.fillText('BenYima AI', 250, 760);
-      ctx.fillStyle=cssVar('--muted'); ctx.font='500 22px Manrope, sans-serif'; ctx.fillText('App creator · Engineering what comes next', 250, 798);
-      drawInfoCard(ctx,80,884,width-160,120,'Doula Silvana',['Support contact · save or scan the QR images']);
-      fillRoundRect(ctx,80,1028,(width-188)/2,470,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
-      fillRoundRect(ctx,108+(width-188)/2,1028,(width-188)/2,470,32,'rgba(255,252,247,0.96)',cssVar('--dune'));
-      ctx.drawImage(wechat, 116, 1068, (width-252)/2, (width-252)/2);
-      ctx.drawImage(telegram, 144+(width-188)/2, 1068, (width-252)/2, (width-252)/2);
-      ctx.fillStyle=cssVar('--text'); ctx.font='700 28px Manrope, sans-serif'; ctx.fillText('WeChat', 116, 1460); ctx.fillText('Telegram', 144+(width-188)/2, 1460);
-      ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif'; ctx.fillText('Long-press to save or scan', 116, 1490); ctx.fillText('Long-press to save or scan', 144+(width-188)/2, 1490);
-    } catch(e){
-      drawInfoCard(ctx,80,460,width-160,220,'Assets unavailable',['Open the More page online to refresh assets, then try again.']);
-    }
+    const last60=state.contractions.filter(x=>x.start>=Date.now()-3600000);
+    const durations=last60.map(x=>x.durationSec);const gaps=last60.map(x=>intervalFor(x)).filter(Boolean);const ints=last60.map(x=>x.intensity).filter(Boolean);
+    const vals=[
+      [last60.length,t('contractions')],[durations.length?fmtDurationLocal(median(durations)):'—',t('typicalDuration')],[gaps.length?fmtDurationLocal(median(gaps)):'—',t('typicalSpacing')],[ints.length?`${Math.round(median(ints)*10)/10}/10`:'—',t('typicalIntensity')]
+    ];
+    els.metrics.innerHTML=vals.map(([v,l])=>`<div class="metric"><div class="value">${v}</div><div class="label">${l}</div></div>`).join('');
+    if(!last60.length){els.sessionSummaryText.textContent=t('noData')}else{els.sessionSummaryText.textContent=`${last60.length} ${t('contractions')} · ${t('typicalDuration')}: ${durations.length?fmtDurationLocal(median(durations)):'—'} · ${t('typicalSpacing')}: ${gaps.length?fmtDurationLocal(median(gaps)):'—'} · ${t('typicalIntensity')}: ${ints.length?`${Math.round(median(ints)*10)/10}/10`:'—'}.`}
   }
-  downloadCanvas(canvas, `ConTrack_${page}_${fileStamp()}.png`);
-  toast('PNG export created');
-}
-function groupByDay(){
-  const days = new Map();
-  state.contractions.forEach(c=>{
-    const key=localIsoDay(c.start);
-    if(!days.has(key)) days.set(key, {day:key,count:0,durations:[],intervals:[],rests:[],pains:[]});
-    const d=days.get(key);
-    d.count++; d.durations.push(c.duration); if(c.interval!=null) d.intervals.push(c.interval); if(c.rest!=null) d.rests.push(c.rest); if(c.pain!=null) d.pains.push(c.pain);
-  });
-  return [...days.values()].map(d=>({
-    day:d.day,
-    count:d.count,
-    avgDuration:avg(d.durations),
-    avgInterval:avg(d.intervals),
-    avgRest:avg(d.rests),
-    avgPain:avg(d.pains)
-  }));
-}
-function drawDailyOverviewChart(ctx,x,y,w,h,days){
-  fillRoundRect(ctx,x,y,w,h,36,'rgba(255,252,247,0.96)',cssVar('--dune'));
-  ctx.fillStyle=cssVar('--text'); ctx.font='700 30px Manrope, sans-serif'; ctx.fillText('Daily overview', x+28, y+44);
-  ctx.fillStyle=cssVar('--muted'); ctx.font='500 20px Manrope, sans-serif'; ctx.fillText('Contractions per day · gold line = avg duration', x+28, y+74);
-  const inner={x:x+28,y:y+100,w:w-56,h:h-160};
-  ctx.strokeStyle=cssVar('--dune'); ctx.lineWidth=2;
-  for(let i=0;i<4;i++){
-    const gy=inner.y + i*(inner.h/3);
-    ctx.beginPath(); ctx.moveTo(inner.x,gy); ctx.lineTo(inner.x+inner.w,gy); ctx.stroke();
-  }
-  if(!days.length){
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 24px Manrope, sans-serif'; ctx.fillText('No contractions recorded yet', inner.x, inner.y+inner.h/2); return;
-  }
-  const maxCount=Math.max(1,...days.map(d=>d.count));
-  const maxDuration=Math.max(60,...days.map(d=>d.avgDuration||0));
-  const gap=18, bw=Math.max(70,(inner.w-gap*(days.length-1))/days.length);
-  let prev=null;
-  days.forEach((d,i)=>{
-    const bx=inner.x+i*(bw+gap), bh=(d.count/maxCount)*(inner.h-40), by=inner.y+inner.h-bh;
-    fillRoundRect(ctx,bx,by,bw,bh,16,cssVar('--accent'));
-    const py=inner.y+inner.h-((d.avgDuration||0)/maxDuration)*(inner.h-40);
-    ctx.fillStyle='#D1A65B'; ctx.beginPath(); ctx.arc(bx+bw/2, py, 7, 0, Math.PI*2); ctx.fill();
-    if(prev){ ctx.strokeStyle='#D1A65B'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(bx+bw/2, py); ctx.stroke(); }
-    prev={x:bx+bw/2,y:py};
-    ctx.fillStyle=cssVar('--muted'); ctx.font='500 18px Manrope, sans-serif'; ctx.textAlign='center';
-    ctx.fillText(d.day.slice(5), bx+bw/2, inner.y+inner.h+28);
-  });
-  ctx.textAlign='left';
-}
-function exportDailyOverviewPng(){
-  const days=groupByDay();
-  const extra=Math.max(0, days.length-4)*92;
-  const {canvas,ctx,width,height}=createExportSurface(1500, 1600 + extra);
-  drawExportHeader(ctx,width,'daily overview','by HangingSense · V3.0','PNG');
-  drawDailyOverviewChart(ctx,80,230,width-160,560,days);
-  const total=state.contractions.length;
-  const avgDurationText=formatShort(avg(state.contractions.map(x=>x.duration)));
-  drawMetricCard(ctx,80,822,(width-208)/3,170,'Total contractions', String(total));
-  drawMetricCard(ctx,104+(width-208)/3,822,(width-208)/3,170,'Avg duration', avgDurationText);
-  drawMetricCard(ctx,128+2*(width-208)/3,822,(width-208)/3,170,'Tracked days', String(days.length));
-  let y=1032;
-  if(!days.length){
-    drawInfoCard(ctx,80,y,width-160,140,'No data',['Track contractions first, then export again.']);
-  } else {
-    days.forEach(d=>{
-      fillRoundRect(ctx,80,y,width-160,120,28,'rgba(255,252,247,0.96)',cssVar('--dune'));
-      ctx.fillStyle=cssVar('--text'); ctx.font='700 28px Manrope, sans-serif'; ctx.fillText(d.day, 108, y+44);
-      ctx.fillStyle=cssVar('--muted'); ctx.font='500 22px Manrope, sans-serif';
-      ctx.fillText(`Count ${d.count}   ·   Avg duration ${formatShort(d.avgDuration)}   ·   Avg interval ${formatShort(d.avgInterval)}   ·   Avg rest ${formatShort(d.avgRest)}${d.avgPain!=null?`   ·   Avg intensity ${d.avgPain.toFixed(1)}/10`:''}`,108,y+84);
-      y+=136;
-    });
-  }
-  downloadCanvas(canvas, `ConTrack_daily_overview_${fileStamp()}.png`);
-  toast('Daily overview PNG created');
-}
 
-loadState();
-renderThemes();
-renderPainGrid();
-applyTheme(state.theme);
-applyLanguage();
-if(state.activeStart) startTick(); else stopTick();
-updateTimerUI();
-
-document.getElementById('toggleTimer').onclick=()=>state.activeStart?endContraction():startContraction();
-document.getElementById('activeStop').onclick=endContraction;
-document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-document.getElementById('painSave').onclick=()=>savePain(true);
-document.getElementById('painSkip').onclick=()=>savePain(false);
-document.getElementById('painSheet').onclick=e=>{if(e.target.id==='painSheet')closePain();};
-document.getElementById('languageSelect').onchange=e=>{state.language=e.target.value;saveState();applyLanguage();};
-document.getElementById('exportCsvBtn').onclick=exportCsv;
-document.getElementById('exportJsonBtn').onclick=exportJson;
-document.getElementById('exportScreenBtn').onclick=exportCurrentScreenPng;
-document.getElementById('exportDailyBtn').onclick=exportDailyOverviewPng;
-document.getElementById('newSessionBtn').onclick=()=>{
-  if(confirm('Start a new session and clear the current contraction list?')) {
-    state.contractions=[];state.activeStart=null;state.sessionStartedAt=Date.now();saveState();stopTick();updateTimerUI();renderAll();toast('New session started');
+  function renderThemes(){
+    const grid=$('#themeGrid');grid.innerHTML='';THEMES.forEach(th=>{const b=document.createElement('button');b.className='theme-card'+(state.theme===th.id?' active':'');b.dataset.theme=th.id;b.innerHTML=`<div class="theme-preview" style="background:${th.colors[0]};color:${th.colors[1]}"><span style="font-size:12px;font-weight:800">Aa</span><span class="mini-orb" style="background:${th.colors[2]}"></span></div><div class="theme-name">${th.name}</div>`;b.addEventListener('click',()=>{state.theme=th.id;persist();applyTheme();renderThemes()});grid.append(b)})
   }
-};
-window.addEventListener('resize',()=>requestAnimationFrame(drawCharts));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateTimerUI();});
+  function applyTheme(){document.documentElement.dataset.theme=state.theme==='hanging'?'':state.theme;document.querySelector('meta[name="theme-color"]').content=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#fff9f1'}
+
+  function renderAll(){renderTrack();renderHistory();renderSummary();renderThemes()}
+
+  function openSheet(el){els.sheetBackdrop.hidden=false;el.hidden=false}
+  function closeSheets(){els.sheetBackdrop.hidden=true;els.intensitySheet.hidden=true;els.editSheet.hidden=true}
+  function openIntensity(item){els.savedDuration.textContent=fmtDurationLocal(item.durationSec);els.intensityGrid.innerHTML='';for(let i=1;i<=10;i++){const b=document.createElement('button');b.className='intensity-btn';b.textContent=i;b.onclick=()=>{const x=state.contractions.find(c=>c.id===item.id);if(x)x.intensity=i;state.pendingIntensityId=null;persist();closeSheets();renderAll();toast(t('savedToast'))};els.intensityGrid.append(b)}openSheet(els.intensitySheet)}
+
+  function openEdit(id){const item=state.contractions.find(x=>x.id===id);if(!item)return;$('#editId').value=id;$('#editStart').value=new Date(item.start-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);$('#editDuration').value=item.durationSec;$('#editIntensity').value=item.intensity??'';$('#editNotes').value=item.notes||'';openSheet(els.editSheet)}
+  function saveEdit(){const id=$('#editId').value,item=state.contractions.find(x=>x.id===id);if(!item)return;const dt=new Date($('#editStart').value);if(!isNaN(dt))item.start=dt.getTime();item.durationSec=Math.max(1,Number($('#editDuration').value)||1);item.end=item.start+item.durationSec*1000;const v=$('#editIntensity').value;item.intensity=v?Math.max(1,Math.min(10,Number(v))):null;item.notes=$('#editNotes').value.trim();state.contractions.sort((a,b)=>a.start-b.start);persist();closeSheets();renderAll();toast(t('savedToast'))}
+  function deleteEdit(){const id=$('#editId').value;state.contractions=state.contractions.filter(x=>x.id!==id);persist();closeSheets();renderAll();toast(t('deleted'))}
+
+  function navTo(name){$$('.screen').forEach(s=>s.classList.toggle('active',s.dataset.screen===name));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));window.scrollTo({top:0,behavior:'smooth'})}
+
+  function summaryText(){return `ConTrack V3.0\n${els.sessionSummaryText.textContent}`}
+  async function shareSummary(){const text=summaryText();if(navigator.share){try{await navigator.share({title:'ConTrack summary',text});return}catch{}}try{await navigator.clipboard.writeText(text);toast(t('shareFallback'))}catch{}}
+  function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},400)}
+  function exportCsv(){const rows=[['id','start_iso','duration_sec','interval_sec','intensity','notes'],...state.contractions.map(x=>[x.id,new Date(x.start).toISOString(),x.durationSec,intervalFor(x)??'',x.intensity??'',(x.notes||'').replaceAll('"','""')])];const csv=rows.map(r=>r.map(v=>`"${String(v)}"`).join(',')).join('\n');downloadBlob('ConTrack-contractions.csv',new Blob([csv],{type:'text/csv;charset=utf-8'}));toast(t('exported'))}
+  function exportJson(){downloadBlob('ConTrack-backup.json',new Blob([JSON.stringify({version:'3.0',exportedAt:new Date().toISOString(),state},null,2)],{type:'application/json'}));toast(t('exported'))}
+  function restoreJson(file){const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result),incoming=data.state||data;state={...defaultState,...incoming,activeStart:null};persist();applyTheme();applyI18n();toast(t('restored'))}catch{toast(t('invalidBackup'))}};r.readAsText(file)}
+  function reset(){if(confirm(t('resetConfirm'))){state={...defaultState,theme:state.theme,lang:state.lang};persist();renderAll()}}
+
+  function exportChartPng(){
+    const items=filteredSummaryItems();const W=1200,H=700,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const c=canvas.getContext('2d');
+    const css=getComputedStyle(document.documentElement);const bg=css.getPropertyValue('--bg').trim()||'#fff9f1',text=css.getPropertyValue('--text').trim()||'#3b2a22',muted=css.getPropertyValue('--muted').trim()||'#8f7d70',amber=css.getPropertyValue('--amber').trim()||'#f2a13a',wood=css.getPropertyValue('--wood2').trim()||'#915538';
+    c.fillStyle=bg;c.fillRect(0,0,W,H);c.fillStyle=text;c.font='700 58px system-ui';c.fillText('ConTrack — '+t('summary'),70,90);c.fillStyle=muted;c.font='28px system-ui';c.fillText(t('recentPattern'),70,140);
+    const x0=80,y0=570,w=1040,h=330;c.strokeStyle='rgba(120,90,70,.18)';c.lineWidth=2;c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+w,y0);c.stroke();
+    if(items.length){const recent=items.slice(-30),max=Math.max(...recent.map(x=>x.durationSec),60),gap=14,bw=Math.min(30,(w-gap*(recent.length-1))/recent.length);recent.forEach((it,i)=>{const bh=70+it.durationSec/max*(h-80);const x=x0+i*(bw+gap);const g=c.createLinearGradient(0,y0-bh,0,y0);g.addColorStop(0,wood);g.addColorStop(1,amber);c.fillStyle=g;roundRect(c,x,y0-bh,bw,bh,bw/2);c.fill()})}else{c.fillStyle=muted;c.font='28px system-ui';c.fillText(t('noData'),80,340)}
+    c.fillStyle=muted;c.font='22px system-ui';c.fillText(new Date().toLocaleString(state.lang),80,640);canvas.toBlob(b=>downloadBlob('ConTrack-summary.png',b),'image/png');
+  }
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,r):(ctx.rect(x,y,w,h))}
+
+  // events
+  els.timerButton.addEventListener('click',toggleTimer);
+  $$('.nav-item').forEach(b=>b.addEventListener('click',()=>navTo(b.dataset.nav)));
+  $('#quickSettings').addEventListener('click',()=>navTo('more'));
+  els.sheetBackdrop.addEventListener('click',closeSheets);$('#skipIntensity').addEventListener('click',()=>{state.pendingIntensityId=null;persist();closeSheets()});
+  $('#saveEdit').addEventListener('click',saveEdit);$('#deleteEdit').addEventListener('click',deleteEdit);
+  $$('[data-history-filter]').forEach(b=>b.addEventListener('click',()=>{state.historyFilter=b.dataset.historyFilter;persist();$$('[data-history-filter]').forEach(x=>x.classList.toggle('active',x===b));renderHistory()}));
+  $$('[data-range]').forEach(b=>b.addEventListener('click',()=>{state.summaryRange=b.dataset.range;persist();$$('[data-range]').forEach(x=>x.classList.toggle('active',x===b));renderSummary()}));
+  $('#shareSummary').addEventListener('click',shareSummary);$('#exportPng').addEventListener('click',exportChartPng);$('#exportCsv').addEventListener('click',exportCsv);$('#exportJson').addEventListener('click',exportJson);$('#restoreJson').addEventListener('change',e=>e.target.files[0]&&restoreJson(e.target.files[0]));$('#resetData').addEventListener('click',reset);
+
+  const langSelect=$('#languageSelect');LANGS.forEach(([id,label])=>{const o=document.createElement('option');o.value=id;o.textContent=label;langSelect.append(o)});langSelect.value=state.lang;langSelect.addEventListener('change',()=>{state.lang=langSelect.value;persist();applyI18n()});
+
+  applyTheme();applyI18n();if(state.activeStart)startTicker();if(state.pendingIntensityId){const x=state.contractions.find(c=>c.id===state.pendingIntensityId);if(x)openIntensity(x)}
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+})();

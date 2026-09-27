@@ -1,248 +1,199 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F7F1E6">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="icon" type="image/png" href="./favicon.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<link rel="manifest" href="./manifest.webmanifest">
-<title>ConTrack @ HangingSense — V3.0</title>
-<link rel="stylesheet" href="./styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#fff9f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ConTrack" />
+  <title>ConTrack V3.0 — by Hanging Sense</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="app" id="app">
-  <header class="topbar">
-    <div class="brandrow">
-      <div class="brand">
-        <img src="./logo-app.png" alt="HangingSense">
-        <div class="brandcopy">
-          <div class="product">ConTrack</div>
-          <div class="byline">by HangingSense · V3.0</div>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="brand-mini" aria-label="ConTrack by Hanging Sense">
+        <img src="assets/brand-mark.jpg" alt="" class="brand-mini__mark" />
+        <div class="brand-mini__text">
+          <strong>ConTrack</strong>
+          <span data-i18n="companion">your labour companion</span>
         </div>
       </div>
-      <div class="status-chip" id="localChip">Local · Offline</div>
-    </div>
-  </header>
+      <button class="icon-btn" id="quickSettings" aria-label="Open settings" title="Settings">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </header>
 
-  <main>
-    <section class="page active" id="page-track">
-      <div class="hero">
-        <div class="eyebrow" data-i18n="trackNow">Track now</div>
-        <div class="timer" id="timer">00:00</div>
-        <p class="helper" id="trackHelper" data-i18n="tapStart">Tap when a contraction begins. Timing stays on this device.</p>
-        <button class="primary-action" id="toggleTimer" aria-label="Start contraction">
-          <span class="dot"></span><span id="toggleText" data-i18n="start">Start contraction</span>
-        </button>
-      </div>
+    <main class="main" id="mainContent">
+      <!-- TRACK -->
+      <section class="screen active" data-screen="track" aria-labelledby="trackTitle">
+        <div class="track-hero">
+          <div class="hero-kicker" id="trackTitle" data-i18n="trackKicker">Contraction timer</div>
+          <div class="hero-state" id="heroState" data-i18n="ready">Ready</div>
+          <div class="hero-sub" id="heroSub" data-i18n="tapWhenBegins">Tap when a contraction begins</div>
 
-      <div class="pattern-strip">
-        <div class="card-head">
+          <button class="timer-orb" id="timerButton" aria-live="polite">
+            <span class="timer-orb__ring"></span>
+            <span class="timer-orb__content">
+              <span class="timer-orb__time" id="timerValue">START</span>
+              <span class="timer-orb__caption" id="timerCaption" data-i18n="start">Start</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="last-card" id="lastCard">
+          <div class="last-card__icon">◷</div>
           <div>
-            <div class="card-title" data-i18n="rhythm">Rhythm</div>
-            <div class="card-note" data-i18n="recentTiming">Recent timing — no prediction</div>
-          </div>
-          <div class="card-note" id="rhythmCount">0</div>
-        </div>
-        <canvas id="rhythmCanvas" aria-label="Recent contraction rhythm"></canvas>
-      </div>
-
-      <div class="last-card">
-        <div class="card-head">
-          <div class="card-title" data-i18n="lastContraction">Last contraction</div>
-          <div class="card-note" id="lastTime">—</div>
-        </div>
-        <div class="last-grid">
-          <div class="metric">
-            <div class="metric-label" data-i18n="duration">Duration</div>
-            <div class="metric-value" id="lastDuration">—</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label" data-i18n="startToStart">Start → start</div>
-            <div class="metric-value" id="lastInterval">—</div>
+            <div class="eyebrow" data-i18n="lastContraction">Last contraction</div>
+            <div class="last-card__value" id="lastValue" data-i18n="noneYet">None recorded yet</div>
           </div>
         </div>
-      </div>
 
-      <div class="cultural-divider" aria-hidden="true"></div>
-      <p class="safety" data-i18n="safety">ConTrack records timing and self-reported intensity. It does not diagnose labor stage or replace advice from your maternity team.</p>
-    </section>
+        <section class="rhythm-section" aria-labelledby="rhythmTitle">
+          <div class="section-head">
+            <div>
+              <h2 id="rhythmTitle" data-i18n="recentRhythm">Recent rhythm</h2>
+              <p data-i18n="lastFive">Last 5 contractions</p>
+            </div>
+          </div>
+          <div class="rhythm" id="rhythm" role="img" aria-label="Recent contraction rhythm"></div>
+        </section>
+      </section>
 
-    <section class="page" id="page-history">
-      <div class="section-head">
-        <div class="section-title" data-i18n="history">History</div>
-        <div class="section-sub" data-i18n="historySub">Review timing, add intensity later, or correct notes without changing the original timestamp.</div>
-      </div>
-      <div class="history-list" id="historyList"></div>
-    </section>
-
-    <section class="page" id="page-summary">
-      <div class="section-head">
-        <div class="section-title" data-i18n="summary">Summary</div>
-        <div class="section-sub" data-i18n="summarySub">A factual snapshot of the current session.</div>
-      </div>
-      <div class="panel chart-panel">
-        <div class="card-head">
+      <!-- HISTORY -->
+      <section class="screen" data-screen="history" aria-labelledby="historyTitle">
+        <div class="page-head">
           <div>
-            <div class="card-title" data-i18n="pattern">Contraction pattern</div>
-            <div class="card-note" data-i18n="chartNote">Duration bars · intensity dots</div>
-          </div>
-          <div class="card-note" id="sessionRange">—</div>
-        </div>
-        <canvas id="summaryCanvas" aria-label="Contraction timing summary chart"></canvas>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi"><small data-i18n="contractions">Contractions</small><strong id="kpiCount">0</strong></div>
-        <div class="kpi"><small data-i18n="avgDuration">Avg duration</small><strong id="kpiDuration">—</strong></div>
-        <div class="kpi"><small data-i18n="avgInterval">Avg start interval</small><strong id="kpiInterval">—</strong></div>
-        <div class="kpi"><small data-i18n="avgRest">Avg rest</small><strong id="kpiRest">—</strong></div>
-      </div>
-
-      <div class="panel" style="margin-top:14px">
-        <div class="card-title" data-i18n="intensitySummary">Intensity</div>
-        <div class="section-sub" style="margin-top:5px" id="painSummary">No intensity ratings yet.</div>
-      </div>
-    </section>
-
-    <section class="page" id="page-more">
-      <div class="section-head">
-        <div class="section-title" data-i18n="more">More</div>
-        <div class="section-sub" data-i18n="moreSub">Language, visual style, session and local data.</div>
-      </div>
-
-      <div class="settings-group">
-        <div class="group-label" data-i18n="language">Language</div>
-        <select class="select" id="languageSelect" aria-label="Language">
-          <option value="en">🇬🇧 English</option>
-          <option value="de">🇩🇪 Deutsch</option>
-          <option value="fr">🇫🇷 Français</option>
-          <option value="es">🇨🇴 Español</option>
-          <option value="fa">🇮🇷 فارسی</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="hi">🇮🇳 हिन्दी</option>
-          <option value="ar">🇸🇦 العربية</option>
-          <option value="ru">🇷🇺 Русский</option>
-          <option value="ko">🇰🇷 한국어</option>
-          <option value="ja">🇯🇵 日本語</option>
-        </select>
-      </div>
-
-      <div class="settings-group">
-        <div class="group-label" data-i18n="designStudio">Design studio</div>
-        <div class="theme-grid" id="themeGrid"></div>
-      </div>
-
-      <div class="settings-group">
-        <div class="group-label" data-i18n="sessionData">Session & data</div>
-        <div class="panel">
-          <div class="setting-row">
-            <div class="setting-main"><b data-i18n="exportCsv">Export CSV</b><span data-i18n="exportCsvSub">Timing, rest, intensity and notes</span></div>
-            <button class="secondary-btn" id="exportCsvBtn" data-i18n="export">Export</button>
-          </div>
-          <div class="setting-row">
-            <div class="setting-main"><b data-i18n="exportJson">Export JSON</b><span data-i18n="exportJsonSub">Full local session backup</span></div>
-            <button class="secondary-btn" id="exportJsonBtn" data-i18n="export">Export</button>
-          </div>
-          <div class="setting-row">
-            <div class="setting-main"><b>Export current screen PNG</b><span>Creates a clean image of the page you are viewing</span></div>
-            <button class="secondary-btn" id="exportScreenBtn">Export</button>
-          </div>
-          <div class="setting-row">
-            <div class="setting-main"><b>Export daily overview PNG</b><span>Creates a chart overview grouped by day</span></div>
-            <button class="secondary-btn" id="exportDailyBtn">Export</button>
-          </div>
-          <div class="setting-row">
-            <div class="setting-main"><b data-i18n="newSession">New session</b><span data-i18n="newSessionSub">Clears the current contraction list on this device</span></div>
-            <button class="secondary-btn danger-btn" id="newSessionBtn" data-i18n="reset">Reset</button>
+            <div class="eyebrow">CONTRACK V3.0</div>
+            <h1 id="historyTitle" data-i18n="history">History</h1>
+            <p data-i18n="historySubtitle">Your contraction record</p>
           </div>
         </div>
-      </div>
+        <div class="segmented" role="tablist" aria-label="History filter">
+          <button class="segment active" data-history-filter="today" data-i18n="today">Today</button>
+          <button class="segment" data-history-filter="all" data-i18n="all">All</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
 
-      <div class="panel brand-card">
-        <img src="./logo-lockup.png" alt="HangingSense brand mark">
-        <h3>ConTrack @ HangingSense</h3>
-        <p data-i18n="brandLine">Calm labor preparation · factual timing · local-first</p>
-      </div>
-
-      <div class="panel creator-panel">
-        <button class="creator-btn" type="button" aria-label="App creator">
-          <img class="creator-logo" src="./benyima-logo.png" alt="BenYima AI logo">
-          <div class="creator-copy">
-            <strong>App creator</strong>
-            <span>BenYima AI · Engineering what comes next</span>
+      <!-- SUMMARY -->
+      <section class="screen" data-screen="summary" aria-labelledby="summaryTitle">
+        <div class="page-head summary-head">
+          <div>
+            <div class="eyebrow">CONTRACK V3.0</div>
+            <h1 id="summaryTitle" data-i18n="summary">Summary</h1>
+            <p data-i18n="summarySubtitle">Your contraction activity at a glance</p>
           </div>
-        </button>
-      </div>
-
-      <div class="panel contact-panel">
-        <div class="contact-head">
-          <h3>Doula Silvana</h3>
-          <p>Support contact · save or scan the QR images below</p>
         </div>
-        <div class="contact-grid">
-          <article class="qr-card">
-            <img src="./doula-silvana-wechat.jpg" alt="Doula Silvana WeChat QR code">
-            <div class="qr-copy"><strong>WeChat</strong><span>Long-press to save or scan</span></div>
-          </article>
-          <article class="qr-card">
-            <img src="./doula-silvana-telegram.jpg" alt="Doula Silvana Telegram QR code">
-            <div class="qr-copy"><strong>Telegram</strong><span>Long-press to save or scan</span></div>
-          </article>
+
+        <section class="summary-chart-card">
+          <div class="section-head summary-chart-head">
+            <div>
+              <h2 data-i18n="recentPattern">Recent pattern</h2>
+              <p data-i18n="lastHourDescription">Contractions over the last 60 minutes</p>
+            </div>
+            <div class="segmented compact" role="tablist" aria-label="Summary range">
+              <button class="segment active" data-range="60">1 h</button>
+              <button class="segment" data-range="180">3 h</button>
+              <button class="segment" data-range="all" data-i18n="all">All</button>
+            </div>
+          </div>
+          <div class="summary-chart" id="summaryChart" role="img" aria-label="Contraction timeline"></div>
+        </section>
+
+        <section class="summary-block">
+          <h2 data-i18n="last60">Last 60 minutes</h2>
+          <div class="metrics" id="metrics"></div>
+        </section>
+
+        <section class="session-summary-card">
+          <div class="eyebrow" data-i18n="sessionSummary">Session summary</div>
+          <p id="sessionSummaryText"></p>
+        </section>
+
+        <div class="summary-actions">
+          <button class="primary-action" id="shareSummary" data-i18n="shareSummary">Share summary</button>
+          <button class="secondary-action" id="exportPng" data-i18n="exportPng">Export chart PNG</button>
         </div>
-      </div>
+      </section>
 
-      <p class="safety" data-i18n="privacy">Your session is stored in this browser only unless you export it. No account or cloud connection is required.</p>
-    </section>
-  </main>
-</div>
+      <!-- MORE -->
+      <section class="screen" data-screen="more" aria-labelledby="moreTitle">
+        <div class="page-head">
+          <div>
+            <div class="eyebrow">CONTRACK V3.0</div>
+            <h1 id="moreTitle" data-i18n="more">More</h1>
+            <p data-i18n="moreSubtitle">Personalise, export and learn</p>
+          </div>
+        </div>
 
-<div class="active-bar" id="activeBar">
-  <button id="activeStop"><span data-i18n="contractionRunning">Contraction running</span> · <span id="activeBarTime">00:00</span> · <span data-i18n="tapToEnd">tap to end</span></button>
-</div>
+        <section class="settings-section">
+          <h2 data-i18n="appearance">Appearance</h2>
+          <div class="theme-grid" id="themeGrid"></div>
+        </section>
 
-<nav class="bottomnav" aria-label="Primary navigation">
-  <div class="navshell">
-    <button class="navbtn active" data-page="track" aria-label="Track">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg><span data-i18n="track">Track</span>
-    </button>
-    <button class="navbtn" data-page="history" aria-label="History">
-      <svg viewBox="0 0 24 24"><path d="M4 7h16M6 4v6M18 4v6M5 10h14v10H5z"/><path d="M8 14h3M13 14h3M8 17h3"/></svg><span data-i18n="history">History</span>
-    </button>
-    <button class="navbtn" data-page="summary" aria-label="Summary">
-      <svg viewBox="0 0 24 24"><path d="M5 19V9M12 19V5M19 19v-7"/></svg><span data-i18n="summary">Summary</span>
-    </button>
-    <button class="navbtn" data-page="more" aria-label="More">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg><span data-i18n="more">More</span>
-    </button>
+        <section class="settings-section">
+          <h2 data-i18n="language">Language</h2>
+          <select id="languageSelect" class="select-control" aria-label="Language"></select>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="data">Data</h2>
+          <div class="action-list">
+            <button class="action-row" id="exportCsv"><span data-i18n="exportCsv">Export CSV</span><span>›</span></button>
+            <button class="action-row" id="exportJson"><span data-i18n="backupJson">Backup JSON</span><span>›</span></button>
+            <label class="action-row file-row"><span data-i18n="restoreJson">Restore JSON</span><input type="file" id="restoreJson" accept="application/json" hidden /><span>›</span></label>
+            <button class="action-row danger" id="resetData"><span data-i18n="resetAll">Reset all data</span><span>›</span></button>
+          </div>
+        </section>
+
+        <section class="brand-panel">
+          <img src="assets/brand-lockup.jpg" alt="ConTrack by Hanging Sense" />
+          <p data-i18n="brandStatement">A calm digital birth companion with a human identity.</p>
+          <div class="version">ConTrack V3.0 · Offline-first</div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <button class="nav-item active" data-nav="track"><span class="nav-icon">◉</span><span data-i18n="track">Track</span></button>
+      <button class="nav-item" data-nav="history"><span class="nav-icon">☷</span><span data-i18n="history">History</span></button>
+      <button class="nav-item" data-nav="summary"><span class="nav-icon">▥</span><span data-i18n="summary">Summary</span></button>
+      <button class="nav-item" data-nav="more"><span class="nav-icon">•••</span><span data-i18n="more">More</span></button>
+    </nav>
   </div>
-</nav>
 
-<div class="sheet-wrap" id="painSheet" role="dialog" aria-modal="true" aria-labelledby="painTitle">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2 id="painTitle" data-i18n="painTitle">How intense did it feel?</h2>
-    <p data-i18n="painSub">Optional self-rating from 0–10. You can add or change it later in History.</p>
-    <div class="pain-grid" id="painGrid"></div>
-    <textarea class="note-input" id="noteInput" data-i18n-placeholder="notePlaceholder" placeholder="Optional note"></textarea>
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="bottom-sheet" id="intensitySheet" aria-modal="true" role="dialog" aria-labelledby="intensityTitle" hidden>
+    <div class="sheet-grabber"></div>
+    <div class="eyebrow" data-i18n="saved">Contraction saved</div>
+    <h2 id="savedDuration">54 sec</h2>
+    <h3 id="intensityTitle" data-i18n="howIntense">How intense was it?</h3>
+    <div class="intensity-grid" id="intensityGrid"></div>
+    <button class="sheet-skip" id="skipIntensity" data-i18n="skip">Skip</button>
+  </section>
+
+  <section class="bottom-sheet edit-sheet" id="editSheet" aria-modal="true" role="dialog" aria-labelledby="editTitle" hidden>
+    <div class="sheet-grabber"></div>
+    <h2 id="editTitle" data-i18n="editContraction">Edit contraction</h2>
+    <input type="hidden" id="editId" />
+    <div class="form-grid">
+      <label><span data-i18n="startTime">Start time</span><input id="editStart" type="datetime-local" /></label>
+      <label><span data-i18n="duration">Duration (sec)</span><input id="editDuration" type="number" min="1" max="3600" /></label>
+      <label><span data-i18n="intensity">Intensity</span><input id="editIntensity" type="number" min="1" max="10" placeholder="—" /></label>
+      <label class="wide"><span data-i18n="notes">Notes</span><textarea id="editNotes" rows="3"></textarea></label>
+    </div>
     <div class="sheet-actions">
-      <button class="sheet-skip" id="painSkip" data-i18n="notRated">Not rated</button>
-      <button class="sheet-save" id="painSave" data-i18n="save">Save</button>
+      <button class="primary-action" id="saveEdit" data-i18n="save">Save</button>
+      <button class="secondary-action danger-text" id="deleteEdit" data-i18n="delete">Delete</button>
     </div>
-  </div>
-</div>
+  </section>
 
-<div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="./app.js" defer></script>
-
-<script>
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
-}
-</script>
-
+  <script src="app.js"></script>
 </body>
 </html>
