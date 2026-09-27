@@ -7,16 +7,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ConTrack" />
-  <title>ConTrack V3.0 — by Hanging Sense</title>
+  <title>ConTrack V3.1 — by Hanging Sense</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell" id="appShell">
     <header class="topbar">
       <div class="brand-mini" aria-label="ConTrack by Hanging Sense">
-        <img src="assets/brand-mark.jpg" alt="" class="brand-mini__mark" />
+        <img src="brand-mark.png" alt="ConTrack brand mark" class="brand-mini__mark" />
         <div class="brand-mini__text">
           <strong>ConTrack</strong>
           <span data-i18n="companion">your labour companion</span>
@@ -28,7 +28,6 @@
     </header>
 
     <main class="main" id="mainContent">
-      <!-- TRACK -->
       <section class="screen active" data-screen="track" aria-labelledby="trackTitle">
         <div class="track-hero">
           <div class="hero-kicker" id="trackTitle" data-i18n="trackKicker">Contraction timer</div>
@@ -63,11 +62,10 @@
         </section>
       </section>
 
-      <!-- HISTORY -->
       <section class="screen" data-screen="history" aria-labelledby="historyTitle">
         <div class="page-head">
           <div>
-            <div class="eyebrow">CONTRACK V3.0</div>
+            <div class="eyebrow">CONTRACK V3.1</div>
             <h1 id="historyTitle" data-i18n="history">History</h1>
             <p data-i18n="historySubtitle">Your contraction record</p>
           </div>
@@ -79,11 +77,10 @@
         <div class="history-list" id="historyList"></div>
       </section>
 
-      <!-- SUMMARY -->
       <section class="screen" data-screen="summary" aria-labelledby="summaryTitle">
         <div class="page-head summary-head">
           <div>
-            <div class="eyebrow">CONTRACK V3.0</div>
+            <div class="eyebrow">CONTRACK V3.1</div>
             <h1 id="summaryTitle" data-i18n="summary">Summary</h1>
             <p data-i18n="summarySubtitle">Your contraction activity at a glance</p>
           </div>
@@ -102,6 +99,10 @@
             </div>
           </div>
           <div class="summary-chart" id="summaryChart" role="img" aria-label="Contraction timeline"></div>
+          <div class="summary-chart-legend">
+            <span><i class="legend-chip legend-chip--bar"></i><span data-i18n="legendDuration">Bar height = duration</span></span>
+            <span><i class="legend-chip legend-chip--dot"></i><span data-i18n="legendIntensity">Top dot / label = intensity</span></span>
+          </div>
         </section>
 
         <section class="summary-block">
@@ -120,11 +121,10 @@
         </div>
       </section>
 
-      <!-- MORE -->
       <section class="screen" data-screen="more" aria-labelledby="moreTitle">
         <div class="page-head">
           <div>
-            <div class="eyebrow">CONTRACK V3.0</div>
+            <div class="eyebrow">CONTRACK V3.1</div>
             <h1 id="moreTitle" data-i18n="more">More</h1>
             <p data-i18n="moreSubtitle">Personalise, export and learn</p>
           </div>
@@ -151,9 +151,37 @@
         </section>
 
         <section class="brand-panel">
-          <img src="assets/brand-lockup.jpg" alt="ConTrack by Hanging Sense" />
+          <img src="brand-lockup.png" alt="ConTrack by Hanging Sense" />
           <p data-i18n="brandStatement">A calm digital birth companion with a human identity.</p>
-          <div class="version">ConTrack V3.0 · Offline-first</div>
+          <div class="version">ConTrack V3.1 · Offline-first</div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="creatorTitle">App creator</h2>
+          <div class="creator-panel">
+            <img src="creator-benyima-ai.png" alt="BenYima AI logo" class="creator-logo" />
+            <div class="creator-copy">
+              <div class="eyebrow" data-i18n="creatorLabel">Created by</div>
+              <h3>BenYima AI</h3>
+              <p data-i18n="creatorDescription">Digital product concept, AI implementation and release support.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="contactTitle">Doula contact scans</h2>
+          <div class="qr-grid">
+            <figure class="qr-card">
+              <img src="contact-wechat.jpg" alt="WeChat QR code for Doula Silvana" class="qr-card__img" />
+              <figcaption>Doula Silvana · WeChat</figcaption>
+              <a class="qr-save" href="contact-wechat.jpg" download="Doula-Silvana-WeChat.jpg" data-i18n="saveImage">Save image</a>
+            </figure>
+            <figure class="qr-card">
+              <img src="contact-telegram.jpg" alt="Telegram QR code for Doula Silvana" class="qr-card__img" />
+              <figcaption>Doula Silvana · Telegram</figcaption>
+              <a class="qr-save" href="contact-telegram.jpg" download="Doula-Silvana-Telegram.jpg" data-i18n="saveImage">Save image</a>
+            </figure>
+          </div>
         </section>
       </section>
     </main>
