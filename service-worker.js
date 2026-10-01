@@ -1,4 +1,4 @@
-const CACHE='contrack-v3-1-1';
+const CACHE='contrack-v4-0-hs-20261001';
 const ASSETS=[
   './','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png',
   './brand-app-icon.png','./brand-mark.png','./brand-lockup.png','./brand-lockup-vertical.png',
