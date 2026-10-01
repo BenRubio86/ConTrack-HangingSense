@@ -1,12 +1,12 @@
 {
-  "name": "ConTrack V3.1 — by Hanging Sense",
+  "name": "ConTrack V4.0 — by Hanging Sense",
   "short_name": "ConTrack",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#fff9f1",
-  "theme_color": "#fff9f1",
+  "background_color": "#FFF7EC",
+  "theme_color": "#FFF7EC",
   "orientation": "portrait-primary",
-  "description": "A calm, offline-first contraction timer and labour companion.",
+  "description": "A calm, offline-first contraction timer, event log and factual labour companion with local photo storage.",
   "icons": [
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
