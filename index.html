@@ -3,225 +3,194 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
-  <meta name="theme-color" content="#fff9f1" />
+  <meta name="theme-color" content="#fff6ea" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ConTrack" />
-  <title>ConTrack V3.1 — by Hanging Sense</title>
+  <title>ConTrack V4.5 — by Hanging Sense</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="v45.css" />
 </head>
 <body>
-  <div class="app-shell" id="appShell">
-    <header class="topbar">
-      <div class="brand-mini" aria-label="ConTrack by Hanging Sense">
-        <img src="brand-mark.png" alt="ConTrack brand mark" class="brand-mini__mark" />
-        <div class="brand-mini__text">
-          <strong>ConTrack</strong>
-          <span data-i18n="companion">your labour companion</span>
-        </div>
+<div class="app-shell">
+  <header class="topbar">
+    <button class="brand-mini" data-nav="track" aria-label="ConTrack home">
+      <img src="brand-app-icon.png" alt="" class="brand-mini__mark" />
+      <span class="brand-mini__text"><strong>ConTrack</strong><small>by Hanging Sense</small></span>
+    </button>
+    <button class="icon-btn" id="quickSettings" aria-label="Open settings">☰</button>
+  </header>
+
+  <main class="main">
+    <section class="screen active" data-screen="track">
+      <div class="track-hero">
+        <div class="hero-kicker" data-i18n="trackKicker">Contraction timer</div>
+        <div class="hero-state" id="heroState">Ready</div>
+        <div class="hero-sub" id="heroSub">Tap when a contraction begins</div>
+        <button class="timer-orb" id="timerButton" aria-live="polite">
+          <span class="timer-orb__halo"></span>
+          <span class="timer-orb__content">
+            <strong id="timerValue">START</strong>
+            <small id="timerCaption">Start</small>
+          </span>
+        </button>
       </div>
-      <button class="icon-btn" id="quickSettings" aria-label="Open settings" title="Settings">
-        <span aria-hidden="true">☰</span>
-      </button>
-    </header>
 
-    <main class="main" id="mainContent">
-      <section class="screen active" data-screen="track" aria-labelledby="trackTitle">
-        <div class="track-hero">
-          <div class="hero-kicker" id="trackTitle" data-i18n="trackKicker">Contraction timer</div>
-          <div class="hero-state" id="heroState" data-i18n="ready">Ready</div>
-          <div class="hero-sub" id="heroSub" data-i18n="tapWhenBegins">Tap when a contraction begins</div>
-
-          <button class="timer-orb" id="timerButton" aria-live="polite">
-            <span class="timer-orb__ring"></span>
-            <span class="timer-orb__content">
-              <span class="timer-orb__time" id="timerValue">START</span>
-              <span class="timer-orb__caption" id="timerCaption" data-i18n="start">Start</span>
-            </span>
-          </button>
-        </div>
-
-        <div class="last-card" id="lastCard">
-          <div class="last-card__icon">◷</div>
-          <div>
-            <div class="eyebrow" data-i18n="lastContraction">Last contraction</div>
-            <div class="last-card__value" id="lastValue" data-i18n="noneYet">None recorded yet</div>
-          </div>
-        </div>
-
-        <section class="rhythm-section" aria-labelledby="rhythmTitle">
-          <div class="section-head">
-            <div>
-              <h2 id="rhythmTitle" data-i18n="recentRhythm">Recent rhythm</h2>
-              <p data-i18n="lastFive">Last 5 contractions</p>
-            </div>
-          </div>
-          <div class="rhythm" id="rhythm" role="img" aria-label="Recent contraction rhythm"></div>
-        </section>
+      <section class="track-actions">
+        <button class="event-action" id="addEventBtn">
+          <span class="event-action__icon">＋</span>
+          <span><b data-i18n="addEvent">Add event</b><small data-i18n="addEventHint">Pee, pain, waters, bleeding or other</small></span>
+        </button>
       </section>
 
-      <section class="screen" data-screen="history" aria-labelledby="historyTitle">
-        <div class="page-head">
-          <div>
-            <div class="eyebrow">CONTRACK V3.1</div>
-            <h1 id="historyTitle" data-i18n="history">History</h1>
-            <p data-i18n="historySubtitle">Your contraction record</p>
-          </div>
-        </div>
-        <div class="segmented" role="tablist" aria-label="History filter">
-          <button class="segment active" data-history-filter="today" data-i18n="today">Today</button>
-          <button class="segment" data-history-filter="all" data-i18n="all">All</button>
-        </div>
-        <div class="history-list" id="historyList"></div>
+      <div class="last-card">
+        <span class="last-card__icon">◷</span>
+        <div class="last-card__main"><div class="eyebrow" data-i18n="lastContraction">Last contraction</div><div id="lastValue" class="last-card__value">None recorded yet</div></div>
+        <button class="mini-edit" id="editLastBtn" hidden data-i18n="edit">Edit</button>
+      </div>
+
+      <section class="rhythm-section">
+        <div class="section-head"><div><h2 data-i18n="recentRhythm">Recent rhythm</h2><p data-i18n="lastFive">Last 5 contractions</p></div></div>
+        <div class="rhythm" id="rhythm"></div>
+        <div class="rhythm-legend"><span><i class="legend-pill legend-bar"></i><b data-i18n="duration">Duration</b></span><span><i class="legend-pill legend-pain-dot"></i><b data-i18n="intensity">Pain intensity</b></span></div>
       </section>
+    </section>
 
-      <section class="screen" data-screen="summary" aria-labelledby="summaryTitle">
-        <div class="page-head summary-head">
-          <div>
-            <div class="eyebrow">CONTRACK V3.1</div>
-            <h1 id="summaryTitle" data-i18n="summary">Summary</h1>
-            <p data-i18n="summarySubtitle">Your contraction activity at a glance</p>
+    <section class="screen" data-screen="history">
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.5</div><h1 data-i18n="history">History</h1><p data-i18n="historySubtitle">Contractions and events in one timeline</p></div>
+      <div class="segmented"><button class="segment active" data-history-filter="today" data-i18n="today">Today</button><button class="segment" data-history-filter="all" data-i18n="all">All</button></div>
+      <div class="timeline-table-wrap">
+        <div class="history-table-head">
+          <span data-i18n="time">Time</span><span data-i18n="event">Event</span><span data-i18n="details">Details</span>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="summary">
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.5</div><h1 data-i18n="summary">Summary</h1><p data-i18n="summarySubtitle">A factual report of recorded timing, intensity and events</p></div>
+
+      <section class="summary-chart-card">
+        <div class="summary-chart-head">
+          <div><h2 data-i18n="contractionPattern">Contraction pattern</h2><p id="rangeDescription">Selected range</p></div>
+          <div class="segmented compact">
+            <button class="segment active" data-range="60">1 h</button>
+            <button class="segment" data-range="180">3 h</button>
+            <button class="segment" data-range="day" data-i18n="day">Day</button>
+            <button class="segment" data-range="all" data-i18n="all">All</button>
           </div>
         </div>
-
-        <section class="summary-chart-card">
-          <div class="section-head summary-chart-head">
-            <div>
-              <h2 data-i18n="recentPattern">Recent pattern</h2>
-              <p data-i18n="lastHourDescription">Contractions over the last 60 minutes</p>
-            </div>
-            <div class="segmented compact" role="tablist" aria-label="Summary range">
-              <button class="segment active" data-range="60">1 h</button>
-              <button class="segment" data-range="180">3 h</button>
-              <button class="segment" data-range="all" data-i18n="all">All</button>
-            </div>
-          </div>
-          <div class="summary-chart" id="summaryChart" role="img" aria-label="Contraction timeline"></div>
-          <div class="summary-chart-legend">
-            <span><i class="legend-chip legend-chip--bar"></i><span data-i18n="legendDuration">Bar height = duration</span></span>
-            <span><i class="legend-chip legend-chip--dot"></i><span data-i18n="legendIntensity">Top dot / label = intensity</span></span>
-          </div>
-        </section>
-
-        <section class="summary-block">
-          <h2 data-i18n="last60">Last 60 minutes</h2>
-          <div class="metrics" id="metrics"></div>
-        </section>
-
-        <section class="session-summary-card">
-          <div class="eyebrow" data-i18n="sessionSummary">Session summary</div>
-          <p id="sessionSummaryText"></p>
-        </section>
-
-        <div class="summary-actions">
-          <button class="primary-action" id="shareSummary" data-i18n="shareSummary">Share summary</button>
-          <button class="secondary-action" id="exportPng" data-i18n="exportPng">Export chart PNG</button>
+        <div class="chart-shell">
+          <svg id="unifiedChart" class="unified-chart" viewBox="0 0 760 360" role="img" aria-label="Unified contraction chart"></svg>
+        </div>
+        <div class="chart-legend">
+          <span><i class="legend legend-duration"></i><b data-i18n="duration">Duration</b> <small>sec</small></span>
+          <span><i class="legend legend-interval"></i><b data-i18n="interval">Interval</b> <small data-i18n="startToStart">start-to-start</small></span>
+          <span><i class="legend legend-pain"></i><b data-i18n="intensity">Pain intensity</b> <small>0–10</small></span>
+          <span><i class="legend legend-event"></i><b data-i18n="events">Events</b></span>
         </div>
       </section>
 
-      <section class="screen" data-screen="more" aria-labelledby="moreTitle">
-        <div class="page-head">
-          <div>
-            <div class="eyebrow">CONTRACK V3.1</div>
-            <h1 id="moreTitle" data-i18n="more">More</h1>
-            <p data-i18n="moreSubtitle">Personalise, export and learn</p>
-          </div>
-        </div>
+      <section class="metrics" id="metrics"></section>
 
-        <section class="settings-section">
-          <h2 data-i18n="appearance">Appearance</h2>
-          <div class="theme-grid" id="themeGrid"></div>
-        </section>
-
-        <section class="settings-section">
-          <h2 data-i18n="language">Language</h2>
-          <select id="languageSelect" class="select-control" aria-label="Language"></select>
-        </section>
-
-        <section class="settings-section">
-          <h2 data-i18n="data">Data</h2>
-          <div class="action-list">
-            <button class="action-row" id="exportCsv"><span data-i18n="exportCsv">Export CSV</span><span>›</span></button>
-            <button class="action-row" id="exportJson"><span data-i18n="backupJson">Backup JSON</span><span>›</span></button>
-            <label class="action-row file-row"><span data-i18n="restoreJson">Restore JSON</span><input type="file" id="restoreJson" accept="application/json" hidden /><span>›</span></label>
-            <button class="action-row danger" id="resetData"><span data-i18n="resetAll">Reset all data</span><span>›</span></button>
-          </div>
-        </section>
-
-        <section class="brand-panel">
-          <img src="brand-lockup.png" alt="ConTrack by Hanging Sense" />
-          <p data-i18n="brandStatement">A calm digital birth companion with a human identity.</p>
-          <div class="version">ConTrack V3.1 · Offline-first</div>
-        </section>
-
-        <section class="settings-section">
-          <h2 data-i18n="creatorTitle">App creator</h2>
-          <div class="creator-panel">
-            <img src="creator-benyima-ai.png" alt="BenYima AI logo" class="creator-logo" />
-            <div class="creator-copy">
-              <div class="eyebrow" data-i18n="creatorLabel">Created by</div>
-              <h3>BenYima AI</h3>
-              <p data-i18n="creatorDescription">Digital product concept, AI implementation and release support.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="settings-section">
-          <h2 data-i18n="contactTitle">Doula contact scans</h2>
-          <div class="qr-grid">
-            <figure class="qr-card">
-              <img src="contact-wechat.jpg" alt="WeChat QR code for Doula Silvana" class="qr-card__img" />
-              <figcaption>Doula Silvana · WeChat</figcaption>
-              <a class="qr-save" href="contact-wechat.jpg" download="Doula-Silvana-WeChat.jpg" data-i18n="saveImage">Save image</a>
-            </figure>
-            <figure class="qr-card">
-              <img src="contact-telegram.jpg" alt="Telegram QR code for Doula Silvana" class="qr-card__img" />
-              <figcaption>Doula Silvana · Telegram</figcaption>
-              <a class="qr-save" href="contact-telegram.jpg" download="Doula-Silvana-Telegram.jpg" data-i18n="saveImage">Save image</a>
-            </figure>
-          </div>
-        </section>
+      <section class="trend-card">
+        <div class="section-head"><div><h2 data-i18n="rollingTrend">Rolling 5-value trend</h2><p data-i18n="rollingTrendHint">Average duration and interval use the latest available values up to five.</p></div></div>
+        <div class="chart-shell trend-shell"><svg id="trendChart" class="trend-chart" viewBox="0 0 760 280" role="img" aria-label="Rolling average trend"></svg></div>
+        <div class="chart-legend"><span><i class="legend legend-trend-duration"></i><b data-i18n="avgDuration5">Avg duration · last 5</b></span><span><i class="legend legend-trend-interval"></i><b data-i18n="avgInterval5">Avg interval · last 5</b></span></div>
       </section>
-    </main>
 
-    <nav class="bottom-nav" aria-label="Primary navigation">
-      <button class="nav-item active" data-nav="track"><span class="nav-icon">◉</span><span data-i18n="track">Track</span></button>
-      <button class="nav-item" data-nav="history"><span class="nav-icon">☷</span><span data-i18n="history">History</span></button>
-      <button class="nav-item" data-nav="summary"><span class="nav-icon">▥</span><span data-i18n="summary">Summary</span></button>
-      <button class="nav-item" data-nav="more"><span class="nav-icon">•••</span><span data-i18n="more">More</span></button>
-    </nav>
-  </div>
+      <section class="report-preview">
+        <div class="section-head"><div><h2 data-i18n="timelineReport">Timeline report</h2><p data-i18n="timelineReportHint">Includes cumulative averages to show the recorded trend.</p></div></div>
+        <div id="reportTable" class="report-table"></div>
+      </section>
 
-  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
-  <section class="bottom-sheet" id="intensitySheet" aria-modal="true" role="dialog" aria-labelledby="intensityTitle" hidden>
-    <div class="sheet-grabber"></div>
-    <div class="eyebrow" data-i18n="saved">Contraction saved</div>
-    <h2 id="savedDuration">54 sec</h2>
-    <h3 id="intensityTitle" data-i18n="howIntense">How intense was it?</h3>
-    <div class="intensity-grid" id="intensityGrid"></div>
-    <button class="sheet-skip" id="skipIntensity" data-i18n="skip">Skip</button>
-  </section>
+      <div class="summary-actions">
+        <button class="primary-action" id="shareReport" data-i18n="shareReport">Share full report</button>
+        <button class="secondary-action" id="downloadReport" data-i18n="downloadReport">Download / save report</button>
+      </div>
+    </section>
 
-  <section class="bottom-sheet edit-sheet" id="editSheet" aria-modal="true" role="dialog" aria-labelledby="editTitle" hidden>
-    <div class="sheet-grabber"></div>
-    <h2 id="editTitle" data-i18n="editContraction">Edit contraction</h2>
-    <input type="hidden" id="editId" />
-    <div class="form-grid">
-      <label><span data-i18n="startTime">Start time</span><input id="editStart" type="datetime-local" /></label>
-      <label><span data-i18n="duration">Duration (sec)</span><input id="editDuration" type="number" min="1" max="3600" /></label>
-      <label><span data-i18n="intensity">Intensity</span><input id="editIntensity" type="number" min="1" max="10" placeholder="—" /></label>
-      <label class="wide"><span data-i18n="notes">Notes</span><textarea id="editNotes" rows="3"></textarea></label>
-    </div>
-    <div class="sheet-actions">
-      <button class="primary-action" id="saveEdit" data-i18n="save">Save</button>
-      <button class="secondary-action danger-text" id="deleteEdit" data-i18n="delete">Delete</button>
-    </div>
-  </section>
+    <section class="screen" data-screen="more">
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.5</div><h1 data-i18n="more">More</h1><p data-i18n="moreSubtitle">Appearance, language, sessions and data</p></div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <section class="settings-section">
+        <h2 data-i18n="appearance">Appearance</h2>
+        <p class="section-note" data-i18n="appearanceHint">Six distinct palettes remain harmonious with the copper Hanging Sense identity.</p>
+        <div class="theme-grid" id="themeGrid"></div>
+      </section>
 
-  <script src="app.js"></script>
+      <section class="settings-section">
+        <h2 data-i18n="language">Language</h2>
+        <select id="languageSelect" class="select-control"></select>
+      </section>
+
+      <section class="settings-section">
+        <h2 data-i18n="sessions">Sessions</h2>
+        <div class="action-list">
+          <button class="action-row" id="newSessionBtn"><span data-i18n="newSession">Start new session</span><span>›</span></button>
+          <button class="action-row" id="exportBackup"><span data-i18n="backupSession">Backup current session + photos</span><span>›</span></button>
+          <label class="action-row file-row"><span data-i18n="restoreBackup">Restore backup</span><input type="file" id="restoreBackup" accept="application/json" hidden><span>›</span></label>
+          <button class="action-row" id="exportCsv"><span data-i18n="exportCsv">Export CSV</span><span>›</span></button>
+          <button class="action-row" id="openManual"><span data-i18n="userManual">User manual / PDF</span><span>›</span></button>
+        </div>
+      </section>
+
+      <section class="brand-panel">
+        <img src="brand-lockup.png" alt="ConTrack by Hanging Sense" />
+        <p data-i18n="brandStatement">A calm, local-first labour companion with a human identity.</p>
+        <div class="version">ConTrack V4.5 · Local & offline-first</div>
+      </section>
+
+      <section class="creator-panel">
+        <img src="creator-benyima-ai.png" alt="BenYimaAI creator logo" class="creator-logo" />
+        <div>
+          <div class="eyebrow">APP CREATOR</div>
+          <h2>BenYimaAI</h2>
+          <p>Product concept, UX direction and application development.</p>
+        </div>
+      </section>
+
+      <section class="settings-section contact-section">
+        <h2>Doula Silvana</h2>
+        <div class="contact-list">
+          <div>💬 <b>WeChat-ID:</b> <span>HangingSense</span></div>
+          <div>✈️ <b>Telegram-ID:</b> <span>HangingSense</span></div>
+          <a href="https://www.instagram.com/hangingsense?stkn=MW42Zm01NHRjeHRpNQ%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 <b>Instagram:</b> @hangingsense</a>
+          <a href="mailto:hangingsense@gmail.com">✉️ <b>Email:</b> hangingsense@gmail.com</a>
+        </div>
+        <div class="qr-grid">
+          <figure class="qr-card"><img src="contact-wechat.jpg" alt="WeChat QR code"><figcaption>💬 WeChat</figcaption></figure>
+          <figure class="qr-card"><img src="contact-telegram.jpg" alt="Telegram QR code"><figcaption>✈️ Telegram</figcaption></figure>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="track"><span>◉</span><b data-i18n="track">Track</b></button>
+    <button class="nav-item" data-nav="history"><span>☷</span><b data-i18n="history">History</b></button>
+    <button class="nav-item" data-nav="summary"><span>▥</span><b data-i18n="summary">Summary</b></button>
+    <button class="nav-item" data-nav="more"><span>•••</span><b data-i18n="more">More</b></button>
+  </nav>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+
+<section class="bottom-sheet" id="intensitySheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><div class="eyebrow" data-i18n="saved">Contraction saved</div><h2 id="savedDuration">54 sec</h2><h3 data-i18n="howIntense">How intense was it?</h3><div class="intensity-control"><div class="intensity-reading"><strong id="intensityNumber">5</strong><span>/10</span><b id="intensityLabel">Moderate</b></div><input id="intensitySlider" type="range" min="0" max="10" step="1" value="5" aria-label="Pain intensity"><div class="intensity-scale"><span data-i18n="low">Low</span><span data-i18n="moderate">Moderate</span><span data-i18n="strong">Strong</span><span data-i18n="intense">Intense</span></div></div><div class="sheet-actions"><button class="primary-action" id="saveIntensity" data-i18n="save">Save</button><button class="secondary-action" id="skipIntensity" data-i18n="later">Later</button></div></section>
+
+<section class="bottom-sheet" id="eventSheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><h2 data-i18n="addEvent">Add event</h2><div class="event-types" id="eventTypes"><button data-event-type="pee"><span>🚻</span><b data-i18n="pee">Pee</b></button><button data-event-type="pain"><span>⚡</span><b data-i18n="painEvent">Pain / discomfort</b></button><button data-event-type="waters"><span>💧</span><b data-i18n="waters">Waters / fluid</b></button><button data-event-type="bleeding"><span class="bleed-dot"></span><b data-i18n="bleeding">Bleeding</b></button><button data-event-type="other"><span>＋</span><b data-i18n="other">Other</b></button></div><label class="field"><span data-i18n="notes">Note (optional)</span><textarea id="eventNote" rows="3" maxlength="500"></textarea></label><label class="photo-picker"><input id="eventPhoto" type="file" accept="image/*" capture="environment" hidden><span>📷</span><b data-i18n="addPhoto">Add photo</b><small id="photoStatus" data-i18n="photoLocal">Stored only on this device</small></label><div class="sheet-actions"><button class="primary-action" id="saveEvent" data-i18n="saveEvent">Save event</button><button class="secondary-action" id="cancelEvent" data-i18n="cancel">Cancel</button></div></section>
+
+<section class="bottom-sheet" id="sessionSheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><h2 data-i18n="protectHistory">Protect your history first</h2><p class="sheet-copy" data-i18n="protectHistoryText">This session contains recorded data. Back it up with photos or archive it in the app before starting again.</p><div class="stack-actions"><button class="primary-action" id="backupAndNew" data-i18n="backupAndNew">Download backup & start new</button><button class="secondary-action" id="archiveAndNew" data-i18n="archiveAndNew">Archive in app & start new</button><button class="text-action" id="cancelNew" data-i18n="cancel">Cancel</button></div></section>
+
+<section class="bottom-sheet" id="exportSheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><h2 data-i18n="exportReport">Export report</h2><p class="sheet-copy" data-i18n="exportReportHint">Choose a format for the currently selected Summary range.</p><div class="export-choice-grid"><button class="export-choice" id="exportPicture"><span class="export-choice__icon">▧</span><span><b data-i18n="picturePng">Picture / PNG</b><small data-i18n="picturePngHint">Easy to save, send or print</small></span></button><button class="export-choice" id="exportHtml"><span class="export-choice__icon">HTML</span><span><b data-i18n="htmlReport">HTML report</b><small data-i18n="htmlReportHint">Full chart, timeline, notes and photos</small></span></button></div><button class="text-action full" id="cancelExport" data-i18n="cancel">Cancel</button></section>
+
+<section class="bottom-sheet edit-sheet" id="editSheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><div class="eyebrow" data-i18n="editRecord">Edit record</div><h2 id="editTitle">Contraction</h2><div id="editContractionFields"><label class="field"><span data-i18n="startTime">Start time</span><input id="editStart" type="datetime-local"></label><label class="field"><span data-i18n="endTime">End time</span><input id="editEnd" type="datetime-local"></label><div class="intensity-control edit-intensity"><div class="intensity-reading"><strong id="editIntensityNumber">5</strong><span>/10</span><b id="editIntensityLabel">Moderate</b></div><input id="editIntensity" type="range" min="0" max="10" step="1" value="5"></div></div><div id="editEventFields" hidden><label class="field"><span data-i18n="eventType">Event type</span><select id="editEventType"><option value="pee">🚻 Pee</option><option value="pain">⚡ Pain / discomfort</option><option value="waters">💧 Waters / fluid</option><option value="bleeding">● Bleeding</option><option value="other">＋ Other</option></select></label><label class="field"><span data-i18n="time">Time</span><input id="editEventTime" type="datetime-local"></label><div class="edit-photo-tools" id="editPhotoTools"></div><label class="photo-picker"><input id="editEventPhoto" type="file" accept="image/*" capture="environment" hidden><span>📷</span><b data-i18n="replacePhoto">Replace / add photo</b></label></div><label class="field"><span data-i18n="notes">Note (optional)</span><textarea id="editNotes" rows="3" maxlength="500"></textarea></label><div class="sheet-actions"><button class="primary-action" id="saveEdit" data-i18n="save">Save</button><button class="secondary-action" id="cancelEdit" data-i18n="cancel">Cancel</button></div></section>
+
+<section class="bottom-sheet photo-viewer-sheet" id="photoSheet" hidden aria-modal="true" role="dialog"><div class="sheet-grabber"></div><h2 data-i18n="eventPhoto">Event photo</h2><img id="photoViewer" alt="Event photo" class="photo-viewer"><div class="sheet-actions"><button class="primary-action" id="savePhotoToPhone" data-i18n="saveSharePhoto">Save / share photo</button><button class="secondary-action" id="closePhoto" data-i18n="close">Close</button></div></section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app-v4.5.js"></script>
 </body>
 </html>
