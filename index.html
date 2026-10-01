@@ -7,10 +7,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ConTrack" />
-  <title>ConTrack V4.3 — by Hanging Sense</title>
+  <title>ConTrack V4.4 — by Hanging Sense</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="v44.css" />
 </head>
 <body>
 <div class="app-shell">
@@ -56,7 +57,7 @@
     </section>
 
     <section class="screen" data-screen="history">
-      <div class="page-head"><div class="eyebrow">CONTRACK V4.3</div><h1 data-i18n="history">History</h1><p data-i18n="historySubtitle">Contractions and events in one timeline</p></div>
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.4</div><h1 data-i18n="history">History</h1><p data-i18n="historySubtitle">Contractions and events in one timeline</p></div>
       <div class="segmented"><button class="segment active" data-history-filter="today" data-i18n="today">Today</button><button class="segment" data-history-filter="all" data-i18n="all">All</button></div>
       <div class="timeline-table-wrap">
         <div class="history-table-head">
@@ -67,7 +68,7 @@
     </section>
 
     <section class="screen" data-screen="summary">
-      <div class="page-head"><div class="eyebrow">CONTRACK V4.3</div><h1 data-i18n="summary">Summary</h1><p data-i18n="summarySubtitle">A factual report of recorded timing, intensity and events</p></div>
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.4</div><h1 data-i18n="summary">Summary</h1><p data-i18n="summarySubtitle">A factual report of recorded timing, intensity and events</p></div>
 
       <section class="summary-chart-card">
         <div class="summary-chart-head">
@@ -99,16 +100,16 @@
 
       <div class="summary-actions">
         <button class="primary-action" id="shareReport" data-i18n="shareReport">Share full report</button>
-        <button class="secondary-action" id="downloadReport" data-i18n="downloadReport">Download HTML report</button>
+        <button class="secondary-action" id="downloadReport" data-i18n="downloadReport">Download / save report</button>
       </div>
     </section>
 
     <section class="screen" data-screen="more">
-      <div class="page-head"><div class="eyebrow">CONTRACK V4.3</div><h1 data-i18n="more">More</h1><p data-i18n="moreSubtitle">Appearance, language, sessions and data</p></div>
+      <div class="page-head"><div class="eyebrow">CONTRACK V4.4</div><h1 data-i18n="more">More</h1><p data-i18n="moreSubtitle">Appearance, language, sessions and data</p></div>
 
       <section class="settings-section">
         <h2 data-i18n="appearance">Appearance</h2>
-        <p class="section-note" data-i18n="appearanceHint">Five distinct palettes remain harmonious with the copper Hanging Sense identity.</p>
+        <p class="section-note" data-i18n="appearanceHint">Six distinct palettes remain harmonious with the copper Hanging Sense identity.</p>
         <div class="theme-grid" id="themeGrid"></div>
       </section>
 
@@ -130,7 +131,7 @@
       <section class="brand-panel">
         <img src="brand-lockup.png" alt="ConTrack by Hanging Sense" />
         <p data-i18n="brandStatement">A calm, local-first labour companion with a human identity.</p>
-        <div class="version">ConTrack V4.3 · Local & offline-first</div>
+        <div class="version">ConTrack V4.4 · Local & offline-first</div>
       </section>
 
       <section class="creator-panel">
@@ -204,7 +205,24 @@
   </div>
 </section>
 
+<section class="bottom-sheet" id="exportSheet" hidden aria-modal="true" role="dialog">
+  <div class="sheet-grabber"></div>
+  <h2 data-i18n="exportReport">Export report</h2>
+  <p class="sheet-copy" data-i18n="exportReportHint">Choose a format for the currently selected Summary range.</p>
+  <div class="export-choice-grid">
+    <button class="export-choice" id="exportPicture">
+      <span class="export-choice__icon">▧</span>
+      <span><b data-i18n="picturePng">Picture / PNG</b><small data-i18n="picturePngHint">Easy to save, send or print</small></span>
+    </button>
+    <button class="export-choice" id="exportHtml">
+      <span class="export-choice__icon">HTML</span>
+      <span><b data-i18n="htmlReport">HTML report</b><small data-i18n="htmlReportHint">Full chart, timeline, notes and photos</small></span>
+    </button>
+  </div>
+  <button class="text-action full" id="cancelExport" data-i18n="cancel">Cancel</button>
+</section>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="app.js"></script>
+<script src="app-v4.4.js"></script>
 </body>
 </html>
