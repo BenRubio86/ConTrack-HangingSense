@@ -10,3 +10,7 @@ html[data-theme="ivory"]{--bg:#fbf8f0;--bg2:#efe9dd;--surface:#fff;--surface2:#f
 .axis-label{font-size:10px;fill:var(--muted)}.chart-date-label{font-size:11px;fill:var(--muted);font-weight:700}.chart-grid-major{stroke:var(--line);stroke-width:1}.chart-grid-minor{stroke:color-mix(in srgb,var(--line) 50%,transparent);stroke-width:.7;stroke-dasharray:3 4}
 @media(max-width:420px){.history-table-head{grid-template-columns:27% 33% 40%;font-size:9.5px}.history-record__top{grid-template-columns:27% 33% 40%;padding:9px 10px}.history-record__detail{padding:8px 10px}.history-kpis{gap:3px}.history-kpi{display:flex;flex-direction:column;align-items:flex-end;gap:0}.history-kpi small{font-size:7.5px}.history-kpi b{font-size:9.5px}.summary-chart-card,.trend-card{padding:14px 12px}.summary-chart-head{gap:8px}.segmented.compact .segment{padding:8px 12px;min-height:40px}.chart-shell{margin-top:10px}.unified-chart{min-width:620px}.trend-chart{min-width:620px}.theme-grid{grid-template-columns:1fr 1fr;gap:8px}.rhythm{gap:6px}.rhythm-item .pulse{width:24px}.mini-edit{min-width:58px;padding:7px 10px}}
 @media print{.bottom-nav,.topbar,.icon-btn,.summary-actions,.mini-edit,.record-edit{display:none!important}}
+
+/* Standalone report snapshots preserve these resolved SVG styles. */
+.chart-value-label{font-size:10px;font-weight:700;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;paint-order:stroke fill;direction:ltr;unicode-bidi:plaintext}
+.unified-chart,.trend-chart{direction:ltr}

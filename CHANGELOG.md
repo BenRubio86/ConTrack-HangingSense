@@ -1,5 +1,14 @@
 # Changelog
 
+## V4.6 chart export repair — 2026-10-02
+
+- Move chart date-range titles right into their own header row, clear of axis headings.
+- Add colour-matched duration, interval, intensity and rolling-average data labels.
+- Export self-contained SVG styling so HTML and PNG reports preserve the selected theme, grid and trend lines.
+- Include colour-keyed legends for both exported charts.
+- Load PNG export on the first visit and keep all timeline rows below the charts.
+- Dismiss the export backdrop after saving and refresh the offline cache.
+
 ## V4.6 — Final project release
 
 ConTrack V4.6 closes the current development cycle and consolidates the production build on `main`.
